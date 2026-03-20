@@ -478,7 +478,22 @@ h1, h2, h3, h4 {
 
 @media (max-width: 768px) {
   .hero-bio {
-    padding: 5rem 1rem 0;
+    padding: 2rem 1rem 0;
+  }
+}
+
+/* Specific smaller text for the long 'About' section on mobile/tablet */
+@media (max-width: 1024px) {
+  #about .hero-bio {
+    font-size: clamp(1.1rem, 4.5vw, 1.8rem);
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 480px) {
+  #about .hero-bio {
+    font-size: 1.1rem;
+    line-height: 1.5;
   }
 }
 
