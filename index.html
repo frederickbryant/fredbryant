@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fred Bryant — Artist, Designer & Photographer</title>
+    <meta name="description"
+        content="Portfolio of Fred Bryant, an artist, designer, and photographer based in California.">
+    <!-- Fonts loaded via @font-face in styles.css -->
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+
+    <!-- Custom Cursor -->
+    <div class="cursor-circle"><span class="cursor-text"></span></div>
+
+
+
+    <div class="progress-bar"></div>
+
+    <nav class="navbar">
+        <a href="#home" class="nav-logo">
+            <img src="logo.png" alt="FB Logo">
+        </a>
+        <div class="nav-container">
+            <div class="nav-indicator"></div>
+            <a href="#home" class="nav-link active">Home</a>
+            <a href="#other-projects" class="nav-link">Projects</a>
+            <a href="#about" class="nav-link">About</a>
+        </div>
+    </nav>
+
+    <main class="scroll-container">
+        <!-- Hero Section -->
+        <section id="home" class="section hero">
+            <div class="content-container reveal">
+                <div class="hero-text-wrapper max-w-lg">
+                    <h1 class="hero-bio">Hi, I’m <span class="accent-text">Fred Bryant</span>—an artist,
+                        designer, and photographer based in California.
+                        Explore my fine art photography prints at <a href="https://decoro.studio" target="_blank"
+                            class="fancy-link">decoro.studio</a> and my research at <a href="https://collating.info"
+                            target="_blank" class="fancy-link">collating.info</a>.<br>
+                        <button class="scroll-btn" aria-label="Scroll down">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <polyline points="19 12 12 19 5 12"></polyline>
+                            </svg>
+                        </button>
+                        Scroll down to see more projects.
+                    </h1>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Other Projects Section -->
+        <section id="other-projects" class="section projects slider-section">
+            <div class="content-container">
+                <div class="accordion-container entrance-hidden">
+                    <!-- Project 1 (Originally Project 3) -->
+                    <div class="project-card active reveal" data-index="01" data-category="photography">
+                        <div class="card-image-wrap">
+                            <div class="card-image-placeholder"
+                                style="background-image: url('cityscapes.jpg');"></div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-top">
+                                <h2 class="project-title"><a href="#" class="project-title-link">Photography</a></h2>
+                            </div>
+                            <div class="card-details">
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 (Originally Project 1) -->
+                    <div class="project-card reveal" data-index="02" data-category="design">
+                        <div class="card-image-wrap">
+                            <div class="card-image-placeholder"
+                                style="background: linear-gradient(135deg, #1a1a1a, #333);"></div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-top">
+
+                                <h2 class="project-title"><a href="#" class="project-title-link">Algorithmic Art</a>
+                                </h2>
+                            </div>
+                            <div class="card-details">
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 3 (Originally Project 2) -->
+                    <div class="project-card reveal" data-index="03" data-category="photography">
+                        <div class="card-image-wrap">
+                            <div class="card-image-placeholder"
+                                style="background: linear-gradient(135deg, #2c1a1a, #4a2222);"></div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-top">
+
+                                <h2 class="project-title"><a href="#" class="project-title-link">Light & Shadow</a></h2>
+                            </div>
+                            <div class="card-details">
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 4 (Originally Project 4) -->
+                    <div class="project-card reveal" data-index="04" data-category="design">
+                        <div class="card-image-wrap">
+                            <div class="card-image-placeholder"
+                                style="background: linear-gradient(135deg, #2c2c1a, #4a4a22);"></div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-top">
+
+                                <h2 class="project-title"><a href="#" class="project-title-link">Design System</a></h2>
+                            </div>
+                            <div class="card-details">
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 5 (Originally Project 5) -->
+                    <div class="project-card reveal" data-index="05" data-category="photography">
+                        <div class="card-image-wrap">
+                            <div class="card-image-placeholder"
+                                style="background: linear-gradient(135deg, #2c1a2c, #4a224a);"></div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-top">
+
+                                <h2 class="project-title"><a href="#" class="project-title-link">Urban Decay</a></h2>
+                            </div>
+                            <div class="card-details">
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Unified Footer for Filters and Counter -->
+                <div class="accordion-footer">
+                    <div class="filter-controls">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="design">Design</button>
+                        <button class="filter-btn" data-filter="photography">Photography</button>
+                    </div>
+                    <div class="project-count">
+                        <span class="count-current">01</span> / <span class="count-total">05</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section about">
+            <div class="content-container reveal">
+                <div class="hero-text-wrapper max-w-lg">
+                    <p class="hero-bio">When I’m not working on creative projects, you can find me playing soccer, tennis,
+                        pickleball, or golf; exploring cities by foot, longboard, or public transit and nature by kayak,
+                        mountain bike, or skis; cooking and baking; watching Tottenham in person or at a supporters pub;
+                        and volunteering for urbanist&nbsp;causes.<br>
+                        <a href="mailto:hi@fredbryant.com" class="contact-link-wrap">
+                            <span class="round-btn" aria-label="Email Me">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                                </svg>
+                            </span>
+                            <span class="fancy-link">Get in touch.</span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" aria-label="Toggle Dark Mode">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+        </svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            style="display: none;">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+    </button>
+
+    <!-- Photography Portfolio Overlay -->
+    <section id="photography-portfolio" class="portfolio-overlay">
+        <div class="portfolio-header">
+            <h2 class="portfolio-title">Photography</h2>
+            <button class="close-portfolio" aria-label="Close Portfolio">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="portfolio-container">
+            <div class="portfolio-grid">
+                <div class="portfolio-item reveal" data-cursor-text="View">
+                    <img src="cityscapes.jpg" alt="Photography artwork">
+                    <div class="item-overlay"><span>Cityscapes</span></div>
+                </div>
+                <div class="portfolio-item reveal" data-cursor-text="View">
+                    <img src="photography/2.png" alt="Modern glass skyscraper symmetry">
+                    <div class="item-overlay"><span>Urban Symmetry</span></div>
+                </div>
+                <div class="portfolio-item reveal" data-cursor-text="View">
+                    <img src="photography/3.png" alt="California coastline sunset">
+                    <div class="item-overlay"><span>Golden Coast</span></div>
+                </div>
+                <div class="portfolio-item reveal" data-cursor-text="View">
+                    <img src="photography/4.png" alt="Desert sand dunes abstract">
+                    <div class="item-overlay"><span>Desert Flow</span></div>
+                </div>
+                <div class="portfolio-item reveal" data-cursor-text="View">
+                    <img src="photography/5.png" alt="Forest light rays">
+                    <div class="item-overlay"><span>Forest Light</span></div>
+                </div>
+                <div class="portfolio-item reveal" data-cursor-text="View">
+                    <img src="photography/6.png" alt="Brutalist concrete architecture">
+                    <div class="item-overlay"><span>Concrete Geometry</span></div>
+                </div>
+                <div class="portfolio-item reveal" data-cursor-text="View">
+                    <img src="photography/7.png" alt="Alpine lake reflection">
+                    <div class="item-overlay"><span>Alpine Reflection</span></div>
+                </div>
+                <div class="portfolio-item reveal" data-cursor-text="View">
+                    <img src="photography/8.png" alt="Vintage film camera">
+                    <div class="item-overlay"><span>Mechanical Soul</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox Overlay -->
+    <div id="lightbox-overlay" class="lightbox-overlay">
+        <button class="close-lightbox" aria-label="Close Lightbox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <button class="lightbox-nav prev" aria-label="Previous Image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <button class="lightbox-nav next" aria-label="Next Image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="Enlarged photography">
+            <p id="lightbox-caption" class="lightbox-caption"></p>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="script.js"></script>
+</body>
+
+</html>

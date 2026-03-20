@@ -1,0 +1,53 @@
+<!DOCTYPE html><html><body>
+<div id="out"></div>
+<script>
+    const out = [];
+    const log = (msg) => out.push(msg);
+
+    const sections = [ { offsetTop: 0 }, { offsetTop: 800 }, { offsetTop: 1600 }, { offsetTop: 2400 } ];
+    const navLinks = [ { left: 10, width: 50, classList: { remove: ()=>{}, add: ()=>{} }, parentElement: { getBoundingClientRect: () => ({left: 0})}, getBoundingClientRect: () => ({left: 10, width: 50})}, 
+                       { left: 100, width: 60, classList: { remove: ()=>{}, add: ()=>{} }, parentElement: { getBoundingClientRect: () => ({left: 0})}, getBoundingClientRect: () => ({left: 100, width: 60})}, 
+                       { left: 200, width: 50, classList: { remove: ()=>{}, add: ()=>{} }, parentElement: { getBoundingClientRect: () => ({left: 0})}, getBoundingClientRect: () => ({left: 200, width: 50})} ];
+
+    const navItems = [
+        { section: sections[0], link: navLinks[0] },
+        { section: sections[1], link: navLinks[0] },
+        { section: sections[2], link: navLinks[1] },
+        { section: sections[3], link: navLinks[2] }
+    ];
+
+    navItems.forEach(item => { item.offsetTop = item.section.offsetTop; });
+
+    let scrollTop = 1200; // Halfway between Section 1 and 2
+
+    let startIndex = 0;
+    let endIndex = 0;
+    let t = 0;
+
+    for (let i = 0; i < navItems.length; i++) {
+        if (i === navItems.length - 1) {
+            startIndex = i; endIndex = i; t = 0; break;
+        }
+        if (scrollTop >= navItems[i].offsetTop && scrollTop < navItems[i+1].offsetTop) {
+            startIndex = i; endIndex = i + 1;
+            let sectionHeight = navItems[i+1].offsetTop - navItems[i].offsetTop;
+            if (sectionHeight > 0) t = (scrollTop - navItems[i].offsetTop) / sectionHeight;
+            break;
+        }
+    }
+
+    const startItem = navItems[startIndex];
+    const endItem = navItems[endIndex];
+
+    const containerRect = startItem.link.parentElement.getBoundingClientRect();
+    const startRect = startItem.link.getBoundingClientRect();
+    const endRect = endItem.link.getBoundingClientRect();
+    const startLeft = startRect.left - containerRect.left;
+    const endLeft = endRect.left - containerRect.left;
+
+    const currentLeft = startLeft + (endLeft - startLeft) * t;
+
+    log(`scrollTop: ${scrollTop}, startIdx: ${startIndex}, endIdx: ${endIndex}, startLeft: ${startLeft}, endLeft: ${endLeft}, t: ${t}, currentLeft: ${currentLeft}`);
+    document.getElementById('out').innerText = out.join('\n');
+</script>
+</body></html>

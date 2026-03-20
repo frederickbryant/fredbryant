@@ -1,0 +1,1356 @@
+/* Founders Grotesk Font Family */
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('fonts/FoundersGrotesk-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('fonts/FoundersGrotesk-LightItalic.otf') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('fonts/FoundersGrotesk-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('fonts/FoundersGrotesk-RegularItalic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('fonts/FoundersGrotesk-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('fonts/FoundersGrotesk-MediumItalic.otf') format('opentype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('fonts/FoundersGrotesk-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('fonts/FoundersGrotesk-SemiboldItalic.otf') format('opentype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('fonts/FoundersGrotesk-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('fonts/FoundersGrotesk-BoldItalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --bg-color: #f9f9f9;
+  /* Off-white base */
+  --accent-color: #ff2751;
+  /* Vibrant red */
+  --text-main: #111111;
+  /* Dark text for readability */
+  --text-muted: #111111;
+  /* Darker grey for better contrast */
+  --glass-bg: rgba(0, 0, 0, 0.03);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-hover: rgba(0, 0, 0, 0.06);
+  --nav-bg: rgba(250, 250, 250, 0.9);
+  --font-mono: 'Founders Grotesk', sans-serif;
+  --font-sans: 'Founders Grotesk', sans-serif;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --line-thickness: 0.035em;
+  --hero-font-size: clamp(1.5rem, 8vw, 3.45rem);
+}
+
+body.dark-mode {
+  --bg-color: #111111;
+  --text-main: #f9f9f9;
+  --text-muted: #f9f9f9;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-hover: rgba(255, 255, 255, 0.1);
+  --nav-bg: rgba(17, 17, 17, 0.9);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  line-height: 1.6;
+  text-wrap: pretty;
+  overflow: hidden;
+  /* We'll scroll the container instead */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  cursor: none;
+  /* Hide default cursor */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+  color: var(--text-main);
+}
+
+p,
+span,
+div,
+a {
+  text-wrap: pretty;
+}
+
+/* Hide cursor on clickable elements to let the custom cursor take over */
+a,
+button,
+input,
+select,
+textarea {
+  cursor: none;
+  position: relative;
+  z-index: 7100;
+  /* Extremely high to sit above the snapped cursor (7000) */
+  transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+
+
+#fluid-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -9999;
+  pointer-events: none;
+}
+
+
+
+/* Cursor snapping state handled in JS, but we define the look here */
+.cursor-circle.snapped {
+  background-color: rgba(255, 39, 81, 0.15);
+  /* Subtle background for links */
+}
+
+body.dark-mode .cursor-circle.snapped {
+  background-color: rgba(255, 39, 81, 0.25);
+}
+
+
+/* Cursor snapping state handled in JS */
+.cursor-circle.snapped {
+  background-color: rgba(255, 39, 81, 0.15);
+  /* Subtle background for links */
+}
+
+body.dark-mode .cursor-circle.snapped {
+  background-color: rgba(255, 39, 81, 0.25);
+}
+
+
+
+/* Hero reveal styles - Slide-out effect */
+
+
+.scroll-indicator-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  width: 100%;
+  position: relative;
+}
+
+
+
+.cursor-circle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--cursor-w, 16px);
+  height: var(--cursor-h, 16px);
+  background-color: var(--accent-color);
+  border-radius: var(--cursor-r, 50%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 7000;
+  /* Stays above everything including the lightbox (6000) */
+  transition: width 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+    height 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+    border-radius 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+    background-color 0.6s ease,
+    opacity 0.6s ease;
+}
+
+/* Cursor Hover States */
+/* Legacy hover removed in favor of snapping */
+
+/* Scroll Container */
+.scroll-container {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  position: relative;
+  /* Removed z-index to let cursor (z-index 10) sit on top of sections */
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari and Opera */
+}
+
+.section {
+  height: 100vh;
+  width: 100%;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 2rem;
+}
+
+.section.hero {
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 2rem;
+}
+
+.hero .content-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.content-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.section.is-visible .content-container {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.max-w-md {
+  max-width: 600px;
+}
+
+.max-w-lg {
+  max-width: 1000px;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mt-12 {
+  margin-top: 3rem;
+}
+
+/* Navbar */
+@keyframes navbarEntrance {
+  0% {
+    transform: translate(-50%, -150%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.navbar {
+  position: fixed;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  /* Baseline for elements on the page */
+  border-radius: 100px;
+  padding: 0.5rem;
+  background: var(--nav-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  /* Start hidden for animation */
+  pointer-events: none;
+  /* Disable until visible */
+}
+
+.navbar.navbar-visible {
+  /* Entrance Animation */
+  animation: navbarEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  pointer-events: all;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.5rem;
+  transition: opacity 0.3s ease;
+}
+
+.nav-logo:hover {
+  opacity: 0.7;
+}
+
+.nav-logo img {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+
+.nav-container {
+  display: flex;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: var(--accent-color);
+  border-radius: 100px;
+  z-index: 0;
+}
+
+.nav-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.6rem 1.25rem;
+  border-radius: 100px;
+  transition: var(--transition);
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover color removed in favor of snapping cursor */
+
+.nav-link.active {
+  color: #fff;
+  /* Keep the active text white since the pill is red */
+}
+
+/* Typography Utilities */
+.accent-text {
+  color: var(--accent-color);
+}
+
+.text-white {
+  color: var(--text-main);
+}
+
+/* changed to main text since white blends into bg */
+
+.inline-link {
+  color: var(--text-main);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  border-bottom: 1px solid transparent;
+  transition: var(--transition);
+}
+
+.inline-link:hover {
+  border-bottom-color: var(--accent-color);
+}
+
+p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  text-wrap: pretty;
+}
+
+h1, h2, h3, h4 {
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--text-main);
+  text-wrap: balance;
+}
+
+/* Hero Section */
+
+.hero-bio {
+  font-size: var(--hero-font-size);
+  font-weight: 300;
+  line-height: 1.2;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-bottom: 2rem;
+  text-wrap: pretty;
+}
+
+
+
+@media (max-width: 768px) {
+  .hero-bio {
+    padding: 5rem 1rem 0;
+  }
+}
+
+.fancy-link {
+  position: relative;
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 300;
+  z-index: 1;
+  display: inline-block;
+}
+
+/* Red Retracting Underline */
+.fancy-link::after {
+  content: "";
+  position: absolute;
+  bottom: var(--line-thickness);
+  left: 0;
+  width: 100%;
+  height: var(--line-thickness);
+  background-color: var(--accent-color);
+  transform: scaleX(1);
+  transform-origin: left;
+  transition: transform 1.8s cubic-bezier(0.19, 1, 0.22, 1);
+  z-index: -1;
+}
+
+.fancy-link:hover::after,
+.contact-link-wrap:hover .fancy-link::after {
+  transform: scaleX(0);
+}
+
+/* Hover opacity removed in favor of snapping cursor */
+
+/* Scroll Button (Inline) */
+.scroll-btn,
+.round-btn {
+  display: inline-flex;
+  width: 2.65em;
+  height: 2.65em;
+  font-size: 1rem;
+  /* Reset font-size to root for consistent em scaling */
+  border-radius: 50% !important;
+  background-color: transparent;
+  border: 2px solid var(--accent-color);
+  color: var(--accent-color);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  padding: 0;
+  margin-right: 0.5em;
+  vertical-align: middle;
+  position: relative;
+  top: -0.1em;
+  box-shadow: 0 0.2em 0.6em rgba(255, 39, 81, 0.1);
+  text-decoration: none;
+}
+
+.scroll-btn {
+  animation: scrollBounce 2.4s infinite ease-in-out;
+}
+
+.scroll-btn svg,
+.round-btn svg {
+  width: 1.6em;
+  height: 1.6em;
+}
+
+@keyframes scrollBounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(0.15em);
+  }
+}
+
+/* Inline Arrow Link */
+.inline-arrow-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  color: var(--accent-color);
+  text-decoration: none;
+  margin-left: 0.2rem;
+  transition: opacity 0.3s ease;
+}
+
+.inline-arrow-link:hover {
+  opacity: 0.8;
+}
+
+.inline-scroll-arrow {
+  animation: bounceFade 2s infinite ease-in-out;
+  animation-delay: 0.1s;
+}
+
+@keyframes bounceFade {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: translateY(10px);
+    opacity: 1;
+  }
+}
+
+/* --- Accordion Projects Section --- */
+.slider-section {
+  padding: 0;
+  overflow: hidden;
+}
+
+.slider-section .content-container {
+  max-width: none;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.accordion-footer {
+  position: absolute;
+  bottom: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.accordion-container.entrance-hidden+.accordion-footer {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+.accordion-container.animate-slide-out+.accordion-footer {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 0.75rem;
+  pointer-events: auto;
+}
+
+.filter-btn {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff !important;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.6rem 1.2rem;
+  border-radius: 100px;
+  cursor: none;
+  transition: var(--transition);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: #fff !important;
+  transform: translateY(-2px);
+}
+
+.project-count {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+body.dark-mode .project-count {
+  color: #f9f9f9 !important;
+}
+
+.count-current {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.accordion-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  gap: 0;
+  perspective: 1000px;
+  /* For depth if needed */
+}
+
+/* Entrance Animation States */
+.accordion-container.entrance-hidden .project-card {
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
+}
+
+/* Hide counter during entrance */
+.accordion-container.entrance-hidden+.project-count.centered-bottom {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.accordion-container.animate-slide-out+.project-count.centered-bottom {
+  opacity: 1;
+}
+
+/* Middle card starts as a dot */
+.accordion-container.entrance-hidden .project-card:nth-child(3) {
+  opacity: 1;
+  flex: 0 0 0;
+  min-width: 0;
+  transform: scale(0);
+  border: none;
+  z-index: 20;
+}
+
+/* Expand Middle Card Step */
+.accordion-container.animate-expand-middle .project-card:nth-child(3) {
+  flex: 1;
+  transform: scale(1);
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), flex 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Slide Out Others Step */
+.accordion-container.animate-slide-out .project-card {
+  opacity: 1;
+  pointer-events: auto;
+  transition: flex 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.6s ease;
+}
+
+.accordion-container.animate-slide-out .project-card:nth-child(3) {
+  flex: 6;
+  /* Back to its active state */
+}
+
+.project-card {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  transition: flex 1.2s cubic-bezier(0.19, 1, 0.22, 1), transform 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.8s ease;
+  text-decoration: none;
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* padding-bottom removed for perfect vertical centering */
+  will-change: flex, transform, opacity;
+}
+
+.project-card.active {
+  flex: 6;
+  /* Expanded width */
+}
+
+.project-card.filtered-out {
+  flex: 0 0 0 !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  border: none !important;
+}
+
+/* Image/BG Layer */
+.card-image-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.card-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.project-card:hover .card-image-placeholder {
+  transform: scale(1.05);
+}
+
+/* Card Content Layer */
+.card-content {
+  padding: 4rem;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.project-card.active .card-content {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.4s;
+  pointer-events: auto;
+}
+
+.card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  /* margin-bottom removed as descriptions are gone */
+}
+
+/* .project-number styles removed as it's no longer used in cards */
+
+.project-title-link {
+  color: #fff !important; /* Force white for legibility on dark card images */
+  text-decoration: none;
+  font-weight: 500;
+  z-index: 1;
+  position: relative;
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.8rem 2.5rem;
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: var(--transition);
+}
+
+body.dark-mode .project-title-link {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.project-title-link:hover {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: #fff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
+  opacity: 1 !important;
+}
+
+.card-details {
+  max-width: 400px;
+}
+
+.project-desc {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-top: 1.5rem;
+  color: var(--text-muted);
+}
+
+.tags {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.45rem 1rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 100px;
+}
+
+/* Dark/Light mode overrides for card text contrast if needed */
+body.dark-mode .project-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.6));
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+body:not(.dark-mode) .project-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(255, 255, 255, 0.4));
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.project-card.active::after {
+  opacity: 1;
+}
+
+/* Vertical text for collapsed cards */
+.project-card::before {
+  display: none;
+}
+
+.project-card.active::before {
+  opacity: 0;
+}
+
+@media (max-width: 768px) {
+  .accordion-container {
+    flex-direction: column;
+  }
+
+  .project-card {
+    border-left: none;
+  }
+
+  .project-card:first-child {
+    border-top: none;
+  }
+
+  .project-card::before {
+    bottom: auto;
+    left: 2rem;
+    top: 2rem;
+    transform: none;
+  }
+
+  .card-content {
+    padding: 2rem;
+  }
+
+  .accordion-header {
+    top: 5rem;
+    left: 2rem;
+  }
+}
+
+/* Removing redundant/broken legacy project styles */
+
+/* Legacy tags removed */
+
+/* About Section */
+.about-content p {
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.social-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.social-link {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--text-main);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: var(--transition);
+  opacity: 0.7;
+}
+
+/* Hover color removed in favor of snapping cursor */
+.social-link:hover {
+  opacity: 1;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  position: fixed;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 7500; /* Stays above cursor (7000) and all overlays */
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #fff !important;
+}
+
+body.dark-mode .theme-toggle {
+  color: #f9f9f9;
+  border: 1px solid var(--glass-border);
+}
+
+
+body.dark-mode .navbar {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.contact-link-wrap {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 0.2rem;
+  position: relative;
+  z-index: 2100;
+  transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.contact-link-wrap .round-btn {
+  pointer-events: none;
+  /* Let the wrapper handle clicks */
+  margin-right: 0;
+}
+
+.contact-link-wrap .fancy-link {
+  pointer-events: none;
+  /* Let the wrapper handle clicks */
+}
+
+.magnetic-inner {
+  display: inline-block;
+  pointer-events: none;
+}
+/* --- Photography Portfolio Overlay --- */
+.portfolio-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg-color);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.6s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.portfolio-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.portfolio-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 4rem 0 2rem;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+.portfolio-title {
+  font-family: var(--font-mono);
+  font-size: 3rem; /* Doubled from 1.5rem */
+  font-weight: 300;
+  color: var(--text-main);
+  text-align: left;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 4rem;
+}
+
+.close-portfolio,
+.close-lightbox {
+  position: fixed;
+  right: 4rem;
+  top: 4.25rem;
+  width: 50px;
+  height: 50px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  color: var(--text-main);
+  cursor: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease;
+}
+
+.close-lightbox {
+  z-index: 6100; /* Lightbox must stay above its own overlay */
+  color: var(--text-main);
+}
+
+body.dark-mode .close-portfolio,
+body.dark-mode .close-lightbox {
+  color: #f9f9f9;
+}
+
+.close-portfolio:hover,
+.close-lightbox:hover {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #fff !important;
+}
+
+.close-portfolio svg,
+.close-lightbox svg {
+  width: 24px;
+  height: 24px;
+  color: inherit;
+}
+
+.portfolio-container {
+  padding: 2rem 4rem 8rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 2rem;
+}
+
+.portfolio-item {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 0;
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  cursor: none;
+}
+
+.portfolio-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.portfolio-item:hover img {
+  transform: scale(1.05);
+}
+
+.item-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.7));
+  display: flex;
+  align-items: flex-end; /* Back to bottom */
+  padding: 2.5rem 1rem;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.portfolio-item:hover .item-overlay {
+  opacity: 1;
+}
+
+.item-overlay span {
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 768px) {
+  .portfolio-header {
+    padding: 1.5rem 0;
+  }
+  .portfolio-title {
+    padding: 0 2rem;
+  }
+  .close-portfolio,
+  .close-lightbox {
+    right: 2rem;
+    top: 1.5rem;
+  }
+  .portfolio-container {
+    padding: 1rem 2rem 4rem;
+  }
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .portfolio-title {
+    font-size: 2.2rem;
+  }
+}
+
+/* --- Morph Transition --- */
+.morph-element {
+  position: fixed;
+  z-index: 4000;
+  pointer-events: none;
+  transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+}
+
+/* --- Cursor Text & View Mode --- */
+.cursor-text {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.cursor-circle.view-mode {
+  --cursor-w: 80px !important;
+  --cursor-h: 80px !important;
+  background-color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cursor-circle.view-mode .cursor-text {
+  opacity: 1;
+}
+
+/* --- Lightbox Overlay --- */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg-color);
+  z-index: 6000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  /* transition: opacity removed for instant toggle */
+}
+
+.lightbox-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox-content {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-content img {
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain;
+  border-radius: 0;
+  /* transition matches JS timing, opacity fade removed */
+  transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+  will-change: transform, width, height, top, left;
+  opacity: 1; /* Always opaque */
+}
+
+.lightbox-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  z-index: 6100;
+  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.lightbox-nav.prev { left: 3rem; }
+.lightbox-nav.next { right: 3rem; }
+
+.lightbox-nav:hover {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #fff !important;
+}
+
+.lightbox-nav svg {
+  width: 24px;
+  height: 24px;
+  color: inherit;
+}
+
+.lightbox-caption {
+  position: fixed; /* Fixed so it doesn't move with the image transition */
+  bottom: 3rem;
+  left: 4rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+  z-index: 6100;
+}
+
+/* Consolidated and ultra-specific hover rules */
+.scroll-btn:hover,
+.round-btn:hover,
+.contact-link-wrap:hover .round-btn,
+body.dark-mode .scroll-btn:hover,
+body.dark-mode .contact-link-wrap:hover .round-btn {
+  background-color: #ff2751 !important;
+  background: #ff2751 !important;
+  color: #ffffff !important;
+  border-color: #ff2751 !important;
+}
+
+.scroll-btn:hover svg,
+.round-btn:hover svg,
+.contact-link-wrap:hover .round-btn svg,
+body.dark-mode .scroll-btn:hover svg,
+body.dark-mode .contact-link-wrap:hover .round-btn svg {
+  stroke: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Allow interaction for hover state */
+.contact-link-wrap .round-btn {
+  pointer-events: auto !important;
+}
+
