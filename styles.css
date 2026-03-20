@@ -474,26 +474,26 @@ h1, h2, h3, h4 {
   text-wrap: pretty;
 }
 
-
-
-@media (max-width: 768px) {
-  .hero-bio {
-    padding: 2rem 1rem 0;
-  }
+/* Match hero desktop size but keep smaller 1.3rem mobile baseline */
+#about .hero-bio {
+  font-size: clamp(1.3rem, 8vw, 3.45rem);
+  line-height: 1.4;
+  font-weight: 300;
 }
 
-/* Specific smaller text for the long 'About' section on mobile/tablet */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   #about .hero-bio {
-    font-size: clamp(1.1rem, 4.5vw, 1.8rem);
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
     line-height: 1.4;
   }
 }
 
-@media (max-width: 480px) {
-  #about .hero-bio {
-    font-size: 1.1rem;
-    line-height: 1.5;
+
+
+/* Cleaned up responsive padding for all bio sections */
+@media (max-width: 768px) {
+  .hero-bio {
+    padding: 2rem 1rem 0;
   }
 }
 
