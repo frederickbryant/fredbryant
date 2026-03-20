@@ -430,23 +430,36 @@ document.addEventListener('DOMContentLoaded', () => {
         currentLightboxIndex = index;
         currentLightboxItems = items;
         lastActiveGridItem = items[index];
+        lastActiveGridItem.style.visibility = 'hidden';
 
         const gridImg = lastActiveGridItem.querySelector('img');
         const caption = lastActiveGridItem.querySelector('.item-overlay span');
         const sourceRect = gridImg.getBoundingClientRect();
 
-        // 1. Set terminal state content but keep scaled
+        // 1. Set terminal state content
         lightboxImg.src = gridImg.src;
         if (lightboxCaption) lightboxCaption.textContent = caption ? caption.textContent : '';
         
         // 2. Prepare FLIP: Start at grid position
-        const targetWidth = window.innerWidth;
-        const targetHeight = window.innerHeight;
+        // Calculate the actual visual size the image will have in the lightbox due to max-width/height
+        const naturalRatio = gridImg.naturalWidth / gridImg.naturalHeight;
+        const containerW = window.innerWidth;
+        const containerH = window.innerHeight;
+        const containerRatio = containerW / containerH;
+
+        let targetW, targetH;
+        if (naturalRatio > containerRatio) {
+            targetW = containerW;
+            targetH = containerW / naturalRatio;
+        } else {
+            targetH = containerH;
+            targetW = containerH * naturalRatio;
+        }
         
-        const scaleX = sourceRect.width / targetWidth;
-        const scaleY = sourceRect.height / targetHeight;
-        const translateX = sourceRect.left + sourceRect.width / 2 - targetWidth / 2;
-        const translateY = sourceRect.top + sourceRect.height / 2 - targetHeight / 2;
+        const scaleX = sourceRect.width / targetW;
+        const scaleY = sourceRect.height / targetH;
+        const translateX = (sourceRect.left + sourceRect.width / 2) - (containerW / 2);
+        const translateY = (sourceRect.top + sourceRect.height / 2) - (containerH / 2);
 
         lightboxImg.style.transition = 'none';
         lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
@@ -472,13 +485,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const gridImg = lastActiveGridItem.querySelector('img');
         const sourceRect = gridImg.getBoundingClientRect();
         
-        const targetWidth = window.innerWidth;
-        const targetHeight = window.innerHeight;
+        const naturalRatio = gridImg.naturalWidth / gridImg.naturalHeight;
+        const containerW = window.innerWidth;
+        const containerH = window.innerHeight;
+        const containerRatio = containerW / containerH;
+
+        let targetW, targetH;
+        if (naturalRatio > containerRatio) {
+            targetW = containerW;
+            targetH = containerW / naturalRatio;
+        } else {
+            targetH = containerH;
+            targetW = containerH * naturalRatio;
+        }
         
-        const scaleX = sourceRect.width / targetWidth;
-        const scaleY = sourceRect.height / targetHeight;
-        const translateX = sourceRect.left + sourceRect.width / 2 - targetWidth / 2;
-        const translateY = sourceRect.top + sourceRect.height / 2 - targetHeight / 2;
+        const scaleX = sourceRect.width / targetW;
+        const scaleY = sourceRect.height / targetH;
+        const translateX = (sourceRect.left + sourceRect.width / 2) - (containerW / 2);
+        const translateY = (sourceRect.top + sourceRect.height / 2) - (containerH / 2);
 
         // Shrink back
         lightboxImg.style.transition = 'transform 0.7s cubic-bezier(0.19, 1, 0.22, 1)';
@@ -487,6 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             lightboxOverlay.classList.remove('active');
             lightboxOverlay.style.background = ''; // Reset
+            if (lastActiveGridItem) lastActiveGridItem.style.visibility = '';
             currentLightboxIndex = -1;
             lightboxImg.style.transform = '';
             lightboxImg.style.transition = '';
@@ -500,8 +525,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (nextIndex < 0) nextIndex = currentLightboxItems.length - 1;
         if (nextIndex >= currentLightboxItems.length) nextIndex = 0;
 
+        // Reveal previous item before switching
+        if (lastActiveGridItem) lastActiveGridItem.style.visibility = '';
+
         currentLightboxIndex = nextIndex;
         lastActiveGridItem = currentLightboxItems[currentLightboxIndex];
+        lastActiveGridItem.style.visibility = 'hidden';
 
         const gridImg = lastActiveGridItem.querySelector('img');
         const caption = lastActiveGridItem.querySelector('.item-overlay span');
