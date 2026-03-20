@@ -240,10 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const accordionCards = document.querySelectorAll('.project-card');
     const countCurrent = document.querySelector('.count-current');
     const countTotal = document.querySelector('.count-total');
-    const filterBtns = document.querySelectorAll('.filter-btn');
 
     const updateCounters = () => {
-        const visibleCards = Array.from(accordionCards).filter(c => !c.classList.contains('filtered-out'));
+        const visibleCards = Array.from(accordionCards);
         if (countTotal) {
             countTotal.textContent = String(visibleCards.length).padStart(2, '0');
         }
@@ -257,42 +256,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    if (filterBtns.length > 0) {
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const filter = (btn.dataset.filter || 'all').toLowerCase();
 
-                // Active button state
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                // Filter cards
-                accordionCards.forEach(card => {
-                    const category = (card.dataset.category || '').toLowerCase();
-                    if (filter === 'all' || category === filter) {
-                        card.classList.remove('filtered-out');
-                    } else {
-                        card.classList.remove('active');
-                        card.classList.add('filtered-out');
-                    }
-                });
-
-                // Ensure an active card is maintained
-                const visibleCards = Array.from(accordionCards).filter(c => !c.classList.contains('filtered-out'));
-                if (visibleCards.length > 0 && !visibleCards.some(c => c.classList.contains('active'))) {
-                    visibleCards[0].classList.add('active');
-                }
-
-                updateCounters();
-            });
-        });
-    }
 
     if (accordionCards.length > 0) {
+        // Initialize first card
+        if (!Array.from(accordionCards).some(c => c.classList.contains('active'))) {
+            accordionCards[0].classList.add('active');
+            updateCounters();
+        }
+
         accordionCards.forEach(card => {
             card.addEventListener('mouseenter', () => {
-                if (card.classList.contains('filtered-out')) return;
-
                 accordionCards.forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
 
@@ -301,8 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Support for touch devices and opening the portfolio
             card.addEventListener('click', (e) => {
-                if (card.classList.contains('filtered-out')) return;
-
                 if (!card.classList.contains('active')) {
                     e.preventDefault();
                     accordionCards.forEach(c => c.classList.remove('active'));
