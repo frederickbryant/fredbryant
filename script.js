@@ -3,43 +3,149 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.nav-link');
     const scrollContainer = document.querySelector('.scroll-container');
 
-    // Intersection Observer for fade-in animations
-    const observerOptions = {
-        root: scrollContainer,
-        rootMargin: '0px',
-        threshold: 0.3
-    };
+    // Start with loading locked
+    document.body.classList.add('loading-active');
 
-    const sectionObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-            }
+    function initSiteAnimations() {
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            root: scrollContainer,
+            rootMargin: '0px',
+            threshold: 0.3
+        };
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            sectionObserver.observe(section);
         });
-    }, observerOptions);
 
-    sections.forEach(section => {
-        sectionObserver.observe(section);
-    });
+        // Intersection Observer for scroll reveal animations
+        const revealObserverOptions = {
+            root: scrollContainer,
+            rootMargin: '0px 0px -50px 0px',
+            threshold: 0.15
+        };
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    revealObserver.unobserve(entry.target); // Only reveal once
+                }
+            });
+        }, revealObserverOptions);
 
-    // Intersection Observer for scroll reveal animations
-    const revealObserverOptions = {
-        root: scrollContainer,
-        rootMargin: '0px 0px -50px 0px',
-        threshold: 0.15
-    };
-    const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                revealObserver.unobserve(entry.target); // Only reveal once
-            }
+        document.querySelectorAll('.reveal').forEach(el => {
+            revealObserver.observe(el);
         });
-    }, revealObserverOptions);
+    }
 
-    document.querySelectorAll('.reveal').forEach(el => {
-        revealObserver.observe(el);
-    });
+    // --- Apple Time Machine Loader ---
+    const loader = document.getElementById('time-machine-loader');
+    if (loader) {
+        const tmStack = loader.querySelector('.tm-stack');
+        // Pre-check dark mode before theme code runs
+        const isDark = document.body.classList.contains('dark-mode') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        
+        const totalCards = 7; // 1 Red, 5 Intermediate, 1 BG
+        const startColor = [255, 39, 81]; // Red
+        const endColor = isDark ? [17, 17, 17] : [249, 249, 249];
+        
+        // Background is solidified in the red accent color. As the cards drop in on top, they carve out their borders towards the center
+        loader.style.backgroundColor = `rgb(${startColor[0]}, ${startColor[1]}, ${startColor[2]})`;
+        
+        for (let i = 0; i < totalCards; i++) {
+            const card = document.createElement('div');
+            card.className = 'tm-card';
+            // Cards get progressively smaller via clip-path, so they must stack ON TOP to leave a visible frame of the previous one
+            card.style.zIndex = i + 1; 
+            
+            const progress = 1 - (i / (totalCards - 1));
+            
+            const r = Math.round(endColor[0] + (startColor[0] - endColor[0]) * progress);
+            const g = Math.round(endColor[1] + (startColor[1] - endColor[1]) * progress);
+            const b = Math.round(endColor[2] + (startColor[2] - endColor[2]) * progress);
+            
+            card.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+            
+            if (i === 0) {
+                // Initial state for front popup card
+                card.style.opacity = '0';
+                card.style.transform = `scale(0.8)`; // Full screen pops from 80% to 100%
+                card.style.clipPath = `inset(0vmin)`;
+                card.style.webkitClipPath = `inset(0vmin)`;
+            } else {
+                // Initial state for newer cards (starts huge near camera)
+                card.style.opacity = '0';
+                card.style.transform = `scale(2.5)`;
+                card.style.clipPath = `inset(0vmin)`;
+                card.style.webkitClipPath = `inset(0vmin)`;
+            }
+            
+            tmStack.appendChild(card);
+        }
+        
+        // 1. Pop up the first exactly full screen red card
+        setTimeout(() => {
+            const firstCard = tmStack.children[0];
+            firstCard.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.2), clip-path 0.6s ease, -webkit-clip-path 0.6s ease, opacity 0.6s ease';
+            firstCard.style.opacity = '1';
+            firstCard.style.transform = 'scale(1)';
+            firstCard.style.clipPath = 'inset(0vmin)'; 
+            firstCard.style.webkitClipPath = 'inset(0vmin)';
+            
+            // 2. Start sequential dropping of newer items inward uniformly
+            for (let i = 1; i < totalCards; i++) {
+                setTimeout(() => {
+                    const c = tmStack.children[i];
+                    c.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.4, 1), clip-path 0.7s cubic-bezier(0.25, 1, 0.4, 1), -webkit-clip-path 0.7s cubic-bezier(0.25, 1, 0.4, 1), opacity 0.5s ease';
+                    c.style.opacity = '1';
+                    
+                    // Flatten local perspective/size distortions
+                    c.style.transform = `scale(1)`;
+                    
+                    // Use universally responsive vmin exactly spacing nested framed layouts symmetrically (sharp corners)
+                    const offset = i * 6; // 6vmin uniformly
+                    c.style.clipPath = `inset(${offset}vmin)`;
+                    c.style.webkitClipPath = `inset(${offset}vmin)`;
+                    
+                    // 3. If it's the final BG card, expand it directly to clear the screen
+                    if (i === totalCards - 1) {
+                        setTimeout(() => {
+                            // Expand the central block exclusively out across the 100vw container
+                            c.style.transition = 'clip-path 1.2s cubic-bezier(0.85, 0, 0.15, 1), -webkit-clip-path 1.2s cubic-bezier(0.85, 0, 0.15, 1)';
+                            
+                            c.style.clipPath = 'inset(0vmin)';
+                            c.style.webkitClipPath = 'inset(0vmin)';
+                            
+                            // Fade out the inner framing cards so the background breathes purely over them underneath
+                            for(let j = 0; j < totalCards - 1; j++) {
+                                tmStack.children[j].style.transition = 'opacity 0.6s ease';
+                                tmStack.children[j].style.opacity = '0';
+                            }
+                            
+                            // 4. Reveal site
+                            setTimeout(() => {
+                                document.body.classList.remove('loading-active');
+                                initSiteAnimations();
+                                loader.style.opacity = '0';
+                                setTimeout(() => loader.remove(), 1000);
+                            }, 800); 
+                        }, 900); // Small pause to let the stack settle before curtain sweeps
+                    }
+                }, 500 + (i * 250)); // Stagger each card's entrance by 250ms
+            }
+        }, 150);
+    } else {
+        document.body.classList.remove('loading-active');
+        initSiteAnimations();
+    }
 
     // --- Modern Text Reveal Setup ---
     function wrapWords(element) {
