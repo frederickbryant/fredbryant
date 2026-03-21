@@ -41,6 +41,59 @@ document.addEventListener('DOMContentLoaded', () => {
         revealObserver.observe(el);
     });
 
+    // --- Modern Text Reveal Setup ---
+    function wrapWords(element) {
+        const nodes = Array.from(element.childNodes);
+        nodes.forEach(node => {
+            if (node.nodeType === 3) {
+                const text = node.nodeValue;
+                if (!text.trim() && text !== '\u00A0') return;
+                
+                const words = text.split(/(\s+)/);
+                const fragment = document.createDocumentFragment();
+                words.forEach(word => {
+                    if (/^\s+$/.test(word) || word === '') {
+                        fragment.appendChild(document.createTextNode(word));
+                    } else {
+                        const span = document.createElement('span');
+                        span.className = 'reveal-word';
+                        span.textContent = word;
+                        fragment.appendChild(span);
+                    }
+                });
+                node.parentNode.replaceChild(fragment, node);
+            } else if (node.nodeType === 1) {
+                // Don't split br tags or already wrapped tags
+                if (node.tagName !== 'BR' && !node.classList.contains('reveal-word')) {
+                     wrapWords(node);
+                }
+            }
+        });
+    }
+
+    document.querySelectorAll('.hero-bio').forEach((bio) => {
+        wrapWords(bio);
+        
+        let wordCount = 0;
+        // Search through DOM in order to stagger correctly
+        const words = bio.querySelectorAll('.reveal-word');
+        words.forEach((word) => {
+            const delayTime = wordCount * 0.03;
+            word.style.transitionDelay = `${delayTime}s`;
+            
+            // Match underline timing to the link's words
+            const parentLink = word.closest('.fancy-link');
+            if (parentLink) {
+                // Set the delay, adding 0.4s so it slides in as the text becomes visible
+                parentLink.style.setProperty('--underline-delay', `${delayTime + 0.4}s`);
+                // Add a helper class so CSS knows this link has dynamic timing
+                parentLink.classList.add('dynamic-underline');
+            }
+            
+            wordCount++;
+        });
+    });
+
     // Continuous Nav Indicator Sync
     const indicator = document.querySelector('.nav-indicator');
 
