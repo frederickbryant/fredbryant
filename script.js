@@ -853,19 +853,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Warp the coordinate space softly
                     vec2 warpedSt = noiseSt + push;
 
-                    // Large, low-frequency base noise for "blobs"
-                    float baseNoise = snoise(warpedSt * 0.4 + u_time * 0.005) * 0.5 + 0.5;
+                    // Large, low-frequency base noise for major movement
+                    float baseNoise = snoise(warpedSt * 0.35 + u_time * 0.005) * 0.5 + 0.5;
+                    
+                    // Secondary, medium-frequency noise to break up solid black areas
+                    float detailNoise = snoise(warpedSt * 0.9 - u_time * 0.012) * 0.5 + 0.5;
                     
                     // Topography mapping: turn the noise into concentric, circular waves
-                    // The frequency (12.0) determines the number of contour lines
-                    float topo = sin(baseNoise * 12.0 - u_time * 0.1) * 0.5 + 0.5;
+                    float topo = sin(baseNoise * 14.0 - u_time * 0.1) * 0.5 + 0.5;
                     
-                    // We mask the topography so it only appears within the "big shapes"
-                    // This creates clusters of wavy circles rather than a flat grid
-                    float finalMask = smoothstep(0.3, 0.7, topo) * smoothstep(0.2, 0.8, baseNoise);
+                    // Wide interpolation curves for maximum gradation
+                    // This ensures there are never hard edges between colors
+                    float topoMask = smoothstep(0.1, 0.9, topo);
+                    float baseMask = smoothstep(0.0, 1.0, baseNoise);
+                    float detailMask = smoothstep(0.3, 0.7, detailNoise) * 0.15; // Faint background haze
+                    
+                    // Combine them for a deep, layered feeling with zero "flat" zones
+                    float finalMask = (topoMask * baseMask * 0.5) + detailMask;
 
                     // Blend with accent color
-                    vec3 finalColor = mix(u_bg, u_color, finalMask * 0.45);
+                    vec3 finalColor = mix(u_bg, u_color, finalMask);
 
                     gl_FragColor = vec4(finalColor, 1.0);
                 }
