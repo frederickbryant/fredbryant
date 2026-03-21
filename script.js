@@ -794,9 +794,9 @@ document.addEventListener('DOMContentLoaded', () => {
         frosted.className = 'frosted-glass';
         interactiveBg.appendChild(frosted);
 
-        const gl = canvas.getContext('webgl');
-
-        if (gl) {
+        try {
+            const gl = canvas.getContext('webgl');
+            if (gl) {
             const vsSource = `
                 attribute vec2 position;
                 void main() {
@@ -848,26 +848,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Extremely wide, gentle displacement force from the mouse (pushing the fog)
                     float dist = distance(noiseSt, mouse);
                     float force = exp(-dist * 2.5) * 0.15;
-                    vec2 push = normalize(noiseSt - mouse + 0.001) * force;
+                    vec2 push = normalize(noiseSt - mouse + vec2(0.001)) * force;
                     
                     // Warp the coordinate space softly
                     vec2 warpedSt = noiseSt + push;
 
-                    // Generate absolute low-frequency noise. This creates massive, soft gradient clouds.
-                    // The time multiplier is very low to match the slow, subtle drifting of the Leonard Agency site.
-                    float n1 = snoise(warpedSt * 0.7 + u_time * 0.008);
-                    float n2 = snoise(warpedSt * 1.3 - u_time * 0.012 + n1 * 1.5);
+                    // Large, sweeping blobs
+                    float n1 = snoise(warpedSt * 0.35 + u_time * 0.006);
+                    float n2 = snoise(warpedSt * 0.65 - u_time * 0.01 + n1 * 1.5);
                     
-                    // Map the noise softly from [-1, 1] range to [0, 1] for color mixing
+                    // Map softly to mixing range
                     float gradientMask = n2 * 0.5 + 0.5;
                     
-                    // Extremely wide smoothstep to ensure there are NEVER any sharp edges, only mist
-                    // Shifted the threshold up to reduce the overall surface area of the red
-                    gradientMask = smoothstep(0.3, 1.0, gradientMask);
+                    // Controlled scarcity but physically large and visible
+                    gradientMask = smoothstep(0.4, 1.0, gradientMask);
 
-                    // Blend the background color with the user's accent color.
-                    // Lowered intensity from 0.65 to 0.40 to make the red even more subtle and faint
-                    vec3 finalColor = mix(u_bg, u_color, gradientMask * 0.40);
+                    // Blend with accent color (increased visibility factor)
+                    vec3 finalColor = mix(u_bg, u_color, gradientMask * 0.55);
 
                     gl_FragColor = vec4(finalColor, 1.0);
                 }
@@ -963,6 +960,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             requestAnimationFrame(renderWebGL);
         }
+    } catch (e) {
+        console.error('WebGL background failed to initialize:', e);
+    }
     }
 
     // Unified Cursor Hover Management and Snapping

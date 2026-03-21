@@ -396,8 +396,8 @@ body.dark-mode .gradient-blob {
   left: 0;
   width: 100vw;
   height: 100vh;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   z-index: 1;
   pointer-events: none;
 }
