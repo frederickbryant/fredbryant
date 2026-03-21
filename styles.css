@@ -474,16 +474,16 @@ h1, h2, h3, h4 {
   text-wrap: pretty;
 }
 
-/* Match hero desktop size and line-height but keep smaller 1.3rem mobile baseline */
+/* Match hero desktop size and line-height but keep readable 1.4rem mobile baseline */
 #about .hero-bio {
-  font-size: clamp(1.3rem, 8vw, 3.45rem);
+  font-size: clamp(1.4rem, 8vw, 3.45rem);
   line-height: 1.2;
   font-weight: 300;
 }
 
 @media (max-width: 768px) {
   #about .hero-bio {
-    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    font-size: clamp(1.4rem, 4vw, 1.8rem);
     line-height: 1.2;
   }
 }
