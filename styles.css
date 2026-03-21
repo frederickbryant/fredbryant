@@ -454,7 +454,10 @@ p {
   text-wrap: pretty;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: inherit;
   font-weight: 500;
   line-height: 1.1;
@@ -474,16 +477,16 @@ h1, h2, h3, h4 {
   text-wrap: pretty;
 }
 
-/* Match hero desktop size and line-height but keep readable 1.4rem mobile baseline */
+/* Match hero desktop size and line-height but keep readable 1.5rem mobile baseline */
 #about .hero-bio {
-  font-size: clamp(1.4rem, 8vw, 3.45rem);
+  font-size: clamp(1.5rem, 8vw, 3.45rem);
   line-height: 1.2;
   font-weight: 300;
 }
 
 @media (max-width: 768px) {
   #about .hero-bio {
-    font-size: clamp(1.4rem, 4vw, 1.8rem);
+    font-size: clamp(1.5rem, 4vw, 1.8rem);
     line-height: 1.2;
   }
 }
@@ -831,7 +834,8 @@ body.dark-mode .project-count {
 /* .project-number styles removed as it's no longer used in cards */
 
 .project-title-link {
-  color: #fff !important; /* Force white for legibility on dark card images */
+  color: #fff !important;
+  /* Force white for legibility on dark card images */
   text-decoration: none;
   font-weight: 500;
   z-index: 1;
@@ -1004,7 +1008,8 @@ body:not(.dark-mode) .project-card::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 7500; /* Stays above cursor (7000) and all overlays */
+  z-index: 7500;
+  /* Stays above cursor (7000) and all overlays */
   transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease;
 }
 
@@ -1049,6 +1054,7 @@ body.dark-mode .navbar {
   display: inline-block;
   pointer-events: none;
 }
+
 /* --- Photography Portfolio Overlay --- */
 .portfolio-overlay {
   position: fixed;
@@ -1081,7 +1087,8 @@ body.dark-mode .navbar {
 
 .portfolio-title {
   font-family: var(--font-mono);
-  font-size: 3rem; /* Doubled from 1.5rem */
+  font-size: 3rem;
+  /* Doubled from 1.5rem */
   font-weight: 300;
   color: var(--text-main);
   text-align: left;
@@ -1113,7 +1120,8 @@ body.dark-mode .navbar {
 }
 
 .close-lightbox {
-  z-index: 6100; /* Lightbox must stay above its own overlay */
+  z-index: 6100;
+  /* Lightbox must stay above its own overlay */
   color: var(--text-main);
 }
 
@@ -1174,7 +1182,8 @@ body.dark-mode .close-lightbox {
   inset: 0;
   background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.7));
   display: flex;
-  align-items: flex-end; /* Back to bottom */
+  align-items: flex-end;
+  /* Back to bottom */
   padding: 2.5rem 1rem;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -1196,21 +1205,26 @@ body.dark-mode .close-lightbox {
   .portfolio-header {
     padding: 1.5rem 0;
   }
+
   .portfolio-title {
     padding: 0 2rem;
   }
+
   .close-portfolio,
   .close-lightbox {
     right: 2rem;
     top: 1.5rem;
   }
+
   .portfolio-container {
     padding: 1rem 2rem 4rem;
   }
+
   .portfolio-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
+
   .portfolio-title {
     font-size: 2.2rem;
   }
@@ -1292,7 +1306,8 @@ body.dark-mode .close-lightbox {
   /* transition matches JS timing, opacity fade removed */
   transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
   will-change: transform, width, height, top, left;
-  opacity: 1; /* Always opaque */
+  opacity: 1;
+  /* Always opaque */
 }
 
 .lightbox-nav {
@@ -1315,8 +1330,13 @@ body.dark-mode .close-lightbox {
   transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.lightbox-nav.prev { left: 3rem; }
-.lightbox-nav.next { right: 3rem; }
+.lightbox-nav.prev {
+  left: 3rem;
+}
+
+.lightbox-nav.next {
+  right: 3rem;
+}
 
 .lightbox-nav:hover {
   background: var(--accent-color);
@@ -1331,7 +1351,8 @@ body.dark-mode .close-lightbox {
 }
 
 .lightbox-caption {
-  position: fixed; /* Fixed so it doesn't move with the image transition */
+  position: fixed;
+  /* Fixed so it doesn't move with the image transition */
   bottom: 3rem;
   left: 4rem;
   font-family: var(--font-mono);
@@ -1368,4 +1389,3 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
 .contact-link-wrap .round-btn {
   pointer-events: auto !important;
 }
-
