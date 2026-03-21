@@ -110,8 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Flatten local perspective/size distortions
                     c.style.transform = `scale(1)`;
                     
-                    // Use universally responsive vmin exactly spacing nested framed layouts symmetrically (sharp corners)
-                    const offset = i * 6; // 6vmin uniformly
+                    // Allocate exact segments (6 borders front, 6 borders back + 1 center core = 13 identical thickness units spanning the smallest screen dimension)
+                    const offset = i * (100 / 13); 
                     c.style.clipPath = `inset(${offset}vmin)`;
                     c.style.webkitClipPath = `inset(${offset}vmin)`;
                     
