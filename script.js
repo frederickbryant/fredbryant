@@ -848,10 +848,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Extremely wide, gentle displacement force from the mouse (pushing the fog)
                     float dist = distance(noiseSt, mouse);
                     float force = exp(-dist * 2.5) * 0.15;
+                    // By subtracting the push vector, we sample coordinates closer to the mouse, 
+                    // which effectively "pushes" the drawn texture away from the cursor visually.
                     vec2 push = normalize(noiseSt - mouse + vec2(0.001)) * force;
-                    
-                    // Warp the coordinate space softly
-                    vec2 warpedSt = noiseSt + push;
+                    vec2 warpedSt = noiseSt - push;
 
                     // Large, low-frequency base noise for major movement
                     float baseNoise = snoise(warpedSt * 0.35 + u_time * 0.005) * 0.5 + 0.5;
