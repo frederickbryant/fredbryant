@@ -91,7 +91,7 @@
   --glass-bg: rgba(0, 0, 0, 0.03);
   --glass-border: rgba(0, 0, 0, 0.08);
   --glass-hover: rgba(0, 0, 0, 0.06);
-  --nav-bg: rgba(250, 250, 250, 0.9);
+  --nav-bg: rgba(250, 250, 250, 0.25);
   --font-mono: 'Founders Grotesk', sans-serif;
   --font-sans: 'Founders Grotesk', sans-serif;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -106,7 +106,7 @@ body.dark-mode {
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-hover: rgba(255, 255, 255, 0.1);
-  --nav-bg: rgba(17, 17, 17, 0.9);
+  --nav-bg: rgba(17, 17, 17, 0.25);
 }
 
 * {
@@ -244,13 +244,161 @@ textarea {
 
 
 
-#fluid-canvas {
+/* --- Interactive Gradient Background --- */
+.interactive-bg {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: -9999;
+  overflow: hidden;
+  background-color: var(--bg-color);
+  transition: background-color 0.3s ease;
+  pointer-events: none;
+}
+
+.blobs-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.gradient-blob {
+  position: absolute;
+  background-color: var(--accent-color);
+  opacity: 1;
+  filter: blur(40px);
+  will-change: transform, border-radius;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+}
+
+body.dark-mode .gradient-blob {
+  opacity: 0.8;
+}
+
+.shape-1 {
+  width: 35vw;
+  height: 40vw;
+  top: -5%;
+  left: -5%;
+  animation: blobMotion1 16s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shape-2 {
+  width: 30vw;
+  height: 35vw;
+  top: 40%;
+  right: -5%;
+  animation: blobMotion2 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: -3s;
+}
+
+.shape-3 {
+  width: 45vw;
+  height: 35vw;
+  bottom: -10%;
+  left: 20%;
+  animation: blobMotion3 24s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: -7s;
+}
+
+.shape-4 {
+  width: 30vw;
+  height: 30vw;
+  top: 50%;
+  left: 50%;
+  animation: blobMotion4 18s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: -11s;
+}
+
+@keyframes blobMotion4 {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 70% 30% 40% 60% / 40% 60% 40% 60%;
+  }
+  50% {
+    transform: translate(-15vw, -15vh) rotate(45deg) scale(1.2);
+    border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
+  }
+  100% {
+    transform: translate(20vw, 15vh) rotate(90deg) scale(0.8);
+    border-radius: 70% 30% 40% 60% / 40% 60% 40% 60%;
+  }
+}
+
+@keyframes blobMotion1 {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  50% {
+    transform: translate(15vw, 15vh) rotate(90deg) scale(1.1);
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  100% {
+    transform: translate(-10vw, 30vh) rotate(180deg) scale(0.9);
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+}
+
+@keyframes blobMotion2 {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%;
+  }
+  50% {
+    transform: translate(-25vw, 10vh) rotate(-90deg) scale(1.2);
+    border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+  }
+  100% {
+    transform: translate(10vw, -20vh) rotate(-180deg) scale(0.85);
+    border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%;
+  }
+}
+
+@keyframes blobMotion3 {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 50% 50% 30% 70% / 70% 40% 60% 30%;
+  }
+  50% {
+    transform: translate(25vw, -30vh) rotate(90deg) scale(0.9);
+    border-radius: 30% 70% 70% 30% / 30% 70% 30% 70%;
+  }
+  100% {
+    transform: translate(-20vw, -10vh) rotate(180deg) scale(1.15);
+    border-radius: 50% 50% 30% 70% / 70% 40% 60% 30%;
+  }
+}
+
+@keyframes blobMotion4 {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 70% 30% 40% 60% / 40% 60% 40% 60%;
+  }
+  50% {
+    transform: translate(-15vw, -15vh) rotate(45deg) scale(1.2);
+    border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
+  }
+  100% {
+    transform: translate(20vw, 15vh) rotate(90deg) scale(0.8);
+    border-radius: 70% 30% 40% 60% / 40% 60% 40% 60%;
+  }
+}
+
+.frosted-glass {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1;
   pointer-events: none;
 }
 

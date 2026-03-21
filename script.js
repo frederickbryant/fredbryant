@@ -94,52 +94,62 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Pop up the first exactly full screen red card
         setTimeout(() => {
             const firstCard = tmStack.children[0];
-            firstCard.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.2), clip-path 0.6s ease, -webkit-clip-path 0.6s ease, opacity 0.6s ease';
+            // Slow, lingering settling curve
+            firstCard.style.transition = 'transform 2.0s cubic-bezier(0.1, 1, 0.1, 1), clip-path 2.0s ease, -webkit-clip-path 2.0s ease, opacity 0.6s ease';
             firstCard.style.opacity = '1';
             firstCard.style.transform = 'scale(1)';
             firstCard.style.clipPath = 'inset(0vmin)'; 
             firstCard.style.webkitClipPath = 'inset(0vmin)';
             
-            // 2. Start sequential dropping of newer items inward uniformly
+            // 2. Start heavily overlapping drops for the remaining inner cards
             for (let i = 1; i < totalCards; i++) {
                 setTimeout(() => {
                     const c = tmStack.children[i];
-                    c.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.4, 1), clip-path 0.7s cubic-bezier(0.25, 1, 0.4, 1), -webkit-clip-path 0.7s cubic-bezier(0.25, 1, 0.4, 1), opacity 0.5s ease';
+                    // Even smoother, longer coasting entrance animation (3.2 seconds)
+                    c.style.transition = 'transform 3.2s cubic-bezier(0.1, 1, 0.1, 1), clip-path 3.2s cubic-bezier(0.1, 1, 0.1, 1), -webkit-clip-path 3.2s cubic-bezier(0.1, 1, 0.1, 1), opacity 0.8s ease';
                     c.style.opacity = '1';
                     
                     // Flatten local perspective/size distortions
                     c.style.transform = `scale(1)`;
                     
-                    // Allocate exact segments (6 borders front, 6 borders back + 1 center core = 13 identical thickness units spanning the smallest screen dimension)
+                    // Allocate exact segments (13 identical thickness units spanning the smallest screen dimension)
                     const offset = i * (100 / 13); 
                     c.style.clipPath = `inset(${offset}vmin)`;
                     c.style.webkitClipPath = `inset(${offset}vmin)`;
                     
-                    // 3. If it's the final BG card, expand it directly to clear the screen
+                    // 3. If it's the final BG card, we begin the exit sequence
                     if (i === totalCards - 1) {
                         setTimeout(() => {
-                            // Expand the central block exclusively out across the 100vw container
-                            c.style.transition = 'clip-path 1.2s cubic-bezier(0.85, 0, 0.15, 1), -webkit-clip-path 1.2s cubic-bezier(0.85, 0, 0.15, 1)';
-                            
-                            c.style.clipPath = 'inset(0vmin)';
-                            c.style.webkitClipPath = 'inset(0vmin)';
-                            
-                            // Fade out the inner framing cards so the background breathes purely over them underneath
-                            for(let j = 0; j < totalCards - 1; j++) {
-                                tmStack.children[j].style.transition = 'opacity 0.6s ease';
-                                tmStack.children[j].style.opacity = '0';
+                            // All layers start zooming simultaneously using exact identical scale math to guarantee zero clipping
+                            for(let j = 0; j < totalCards; j++) {
+                                const layer = tmStack.children[j];
+                                // Match the luxurious 3.2s zoom-in pacing: Outer finishes in 2.0s, innermost finishes in ~3.2s
+                                const duration = 2.0 + (j * 0.2); 
+                                layer.style.transition = `transform ${duration}s cubic-bezier(0.6, 0.0, 0.1, 1), opacity ${duration - 0.5}s ease 0.2s`;
+                                
+                                // We scale everyone uniformly up to massive size to shoot past the camera.
+                                // Because we ONLY animate scale and not clip-path, the mathematical boundaries are completely locked and can NEVER intersect.
+                                layer.style.transform = 'scale(40)'; 
+                                
+                                if (j < totalCards - 1) {
+                                    layer.style.opacity = '0'; // Tunnel framing layers fade out
+                                } else {
+                                    layer.style.opacity = '1'; // The solid center block securely sweeps across the screen to act as the background floor
+                                }
                             }
                             
-                            // 4. Reveal site
+                            // Reveal site
                             setTimeout(() => {
                                 document.body.classList.remove('loading-active');
                                 initSiteAnimations();
+                                if (typeof updateSmoothIndicator === 'function') updateSmoothIndicator();
                                 loader.style.opacity = '0';
                                 setTimeout(() => loader.remove(), 1000);
-                            }, 800); 
-                        }, 900); // Small pause to let the stack settle before curtain sweeps
+                            }, 1800); // Triggers as soon as the expanding block visually covers the camera, instead of waiting for the full 3.2s technical completion
+                            
+                        }, 1800); // Paused longer to let the 3.2s coasting entrance breathe
                     }
-                }, 500 + (i * 250)); // Stagger each card's entrance by 250ms
+                }, 300 + (i * 120)); // Slowed entrance stagger slightly (120ms) for better overlap pacing
             }
         }, 150);
     } else {
@@ -765,11 +775,195 @@ document.addEventListener('DOMContentLoaded', () => {
     // Physics variables
     const speed = 0.4; // controls tracking snappiness (higher = less delay)
 
-    // Update target position on mouse move
-    window.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
+    // --- Advanced WebGL Fluid Displacement Background ---
+    const interactiveBg = document.querySelector('.interactive-bg');
+
+    if (interactiveBg) {
+        interactiveBg.innerHTML = ''; // Start clean
+        
+        const canvas = document.createElement('canvas');
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+        canvas.style.zIndex = '0';
+        interactiveBg.appendChild(canvas);
+        
+        const frosted = document.createElement('div');
+        frosted.className = 'frosted-glass';
+        interactiveBg.appendChild(frosted);
+
+        const gl = canvas.getContext('webgl');
+
+        if (gl) {
+            const vsSource = `
+                attribute vec2 position;
+                void main() {
+                    gl_Position = vec4(position, 0.0, 1.0);
+                }
+            `;
+
+            const fsSource = `
+                precision highp float;
+                uniform vec2 u_resolution;
+                uniform vec2 u_mouse;
+                uniform float u_time;
+                uniform vec3 u_color;
+                uniform vec3 u_bg;
+
+                // 2D Simplex Noise Function needed for soft mesh gradients
+                vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+                float snoise(vec2 v){
+                  const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+                  vec2 i  = floor(v + dot(v, C.yy) );
+                  vec2 x0 = v - i + dot(i, C.xx);
+                  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                  vec4 x12 = x0.xyxy + C.xxzz;
+                  x12.xy -= i1;
+                  i = mod(i, 289.0);
+                  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+                  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+                  m = m*m ;
+                  m = m*m ;
+                  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+                  vec3 h = abs(x) - 0.5;
+                  vec3 ox = floor(x + 0.5);
+                  vec3 a0 = x - ox;
+                  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+                  vec3 g;
+                  g.x  = a0.x  * x0.x  + h.x  * x0.y;
+                  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+                  return 130.0 * dot(m, g);
+                }
+
+                void main() {
+                    vec2 st = gl_FragCoord.xy / u_resolution.xy;
+                    vec2 noiseSt = st;
+                    noiseSt.x *= u_resolution.x / u_resolution.y;
+
+                    vec2 mouse = u_mouse.xy / u_resolution.xy;
+                    mouse.x *= u_resolution.x / u_resolution.y;
+
+                    // Extremely wide, gentle displacement force from the mouse (pushing the fog)
+                    float dist = distance(noiseSt, mouse);
+                    float force = exp(-dist * 2.5) * 0.15;
+                    vec2 push = normalize(noiseSt - mouse + 0.001) * force;
+                    
+                    // Warp the coordinate space softly
+                    vec2 warpedSt = noiseSt + push;
+
+                    // Generate absolute low-frequency noise. This creates massive, soft gradient clouds.
+                    // The time multiplier is very low to match the slow, subtle drifting of the Leonard Agency site.
+                    float n1 = snoise(warpedSt * 0.7 + u_time * 0.008);
+                    float n2 = snoise(warpedSt * 1.3 - u_time * 0.012 + n1 * 1.5);
+                    
+                    // Map the noise softly from [-1, 1] range to [0, 1] for color mixing
+                    float gradientMask = n2 * 0.5 + 0.5;
+                    
+                    // Extremely wide smoothstep to ensure there are NEVER any sharp edges, only mist
+                    // Shifted the threshold up to reduce the overall surface area of the red
+                    gradientMask = smoothstep(0.3, 1.0, gradientMask);
+
+                    // Blend the background color with the user's accent color.
+                    // Lowered intensity from 0.65 to 0.40 to make the red even more subtle and faint
+                    vec3 finalColor = mix(u_bg, u_color, gradientMask * 0.40);
+
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+
+            function createShader(gl, type, source) {
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    console.error(gl.getShaderInfoLog(shader));
+                    gl.deleteShader(shader);
+                    return null;
+                }
+                return shader;
+            }
+
+            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
+            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            gl.useProgram(program);
+
+            const positionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            const positions = [-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1];
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+            const positionLocation = gl.getAttribLocation(program, "position");
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+            const locations = {
+                resolution: gl.getUniformLocation(program, "u_resolution"),
+                mouse: gl.getUniformLocation(program, "u_mouse"),
+                time: gl.getUniformLocation(program, "u_time"),
+                color: gl.getUniformLocation(program, "u_color"),
+                bg: gl.getUniformLocation(program, "u_bg"),
+            };
+
+            let width, height;
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                gl.viewport(0, 0, width, height);
+                gl.uniform2f(locations.resolution, width, height);
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            let targetMouseX = width / 2, targetMouseY = height / 2;
+            let currentMouseX = width / 2, currentMouseY = height / 2;
+            
+            window.addEventListener('mousemove', (e) => {
+                // Update global mouse used by the custom custom cursor
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                // Update target mouse for WebGL shader
+                targetMouseX = e.clientX;
+                targetMouseY = height - e.clientY; // WebGL Y is flipped
+            });
+
+            function hexToRgb(hex) {
+                let r = parseInt(hex.slice(1, 3), 16) / 255;
+                let g = parseInt(hex.slice(3, 5), 16) / 255;
+                let b = parseInt(hex.slice(5, 7), 16) / 255;
+                return [r, g, b];
+            }
+
+            const accentRgb = hexToRgb('#ff2751');
+
+            function renderWebGL(time) {
+                gl.uniform1f(locations.time, time * 0.001);
+                
+                // Spring-loaded smoothing for organic response
+                currentMouseX += (targetMouseX - currentMouseX) * 0.08;
+                currentMouseY += (targetMouseY - currentMouseY) * 0.08;
+                gl.uniform2f(locations.mouse, currentMouseX, currentMouseY);
+                
+                gl.uniform3fv(locations.color, accentRgb);
+
+                const isDark = document.body.classList.contains('dark-mode');
+                gl.uniform3fv(locations.bg, isDark ? hexToRgb('#111111') : hexToRgb('#f9f9f9'));
+
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+                requestAnimationFrame(renderWebGL);
+            }
+            requestAnimationFrame(renderWebGL);
+        }
+    }
 
     // Unified Cursor Hover Management and Snapping
     let snapTarget = null;
@@ -906,148 +1100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     animateCursor();
 
-    // --- Antigravity Particle Background ---
-    const canvas = document.getElementById('fluid-canvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-
-        let width, height;
-        let particles = [];
-        let mouseX = -1000, mouseY = -1000;
-        const mouseRadius = 120;
-        let time = 0;
-
-        function initParticles() {
-            particles = [];
-            const spacing = 100;
-            const cols = Math.ceil(width / spacing) + 2;
-            const rows = Math.ceil(height / spacing) + 2;
-
-            for (let i = 0; i < cols; i++) {
-                for (let j = 0; j < rows; j++) {
-                    const x = i * spacing + (Math.random() - 0.5) * 8;
-                    const y = j * spacing + (Math.random() - 0.5) * 8;
-
-                    const t = Math.random();
-                    const r = Math.round(255 + (249 - 255) * t);
-                    const g = Math.round(39 + (249 - 39) * t);
-                    const b = Math.round(81 + (249 - 81) * t);
-
-                    particles.push({
-                        homeX: x,
-                        homeY: y,
-                        x: x,
-                        y: y,
-                        vx: 0,
-                        vy: 0,
-                        maxPillWidth: Math.random() * 6 + 10,
-                        minRadius: Math.random() * 1 + 2,
-                        pillHeight: Math.random() * 2 + 3,
-                        rotation: Math.PI / 2 + (Math.random() - 0.5) * 0.4,
-                        color: `rgb(${r}, ${g}, ${b})`,
-                        opacity: Math.random() * 0.4 + 0.5,
-                        phaseX: Math.random() * Math.PI * 2,
-                        phaseY: Math.random() * Math.PI * 2,
-                        waveSpeed: Math.random() * 2 + 1,
-                        waveAmp: Math.random() * 22 + 12
-                    });
-                }
-            }
-        }
-
-        function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-            initParticles();
-        }
-
-        window.addEventListener('resize', resize);
-        resize();
-
-        window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-
-        window.addEventListener('mouseleave', () => {
-            mouseX = -1000;
-            mouseY = -1000;
-        });
-
-        function render() {
-            time += 0.008;
-
-            // Sync with dark mode
-            ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#111111' : '#f9f9f9';
-            ctx.fillRect(0, 0, width, height);
-
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-
-                const waveX = Math.sin(time * p.waveSpeed + p.phaseX + p.homeY * 0.008) * p.waveAmp;
-                const waveY = Math.cos(time * p.waveSpeed * 0.8 + p.phaseY + p.homeX * 0.008) * p.waveAmp * 0.6;
-
-                let targetX = p.homeX + waveX;
-                let targetY = p.homeY + waveY;
-
-                const dx = targetX - mouseX;
-                const dy = targetY - mouseY;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-
-                if (dist < mouseRadius && dist > 0) {
-                    const force = (1 - dist / mouseRadius) * 50;
-                    targetX += (dx / dist) * force;
-                    targetY += (dy / dist) * force;
-                }
-
-                p.vx += (targetX - p.x) * 0.08;
-                p.vy += (targetY - p.y) * 0.08;
-                p.vx *= 0.75;
-                p.vy *= 0.75;
-                p.x += p.vx;
-                p.y += p.vy;
-
-                // Scale size based on displacement from home
-                const dispX = p.x - p.homeX;
-                const dispY = p.y - p.homeY;
-                const displacement = Math.sqrt(dispX * dispX + dispY * dispY);
-                const maxDisp = p.waveAmp * 1.5;
-                const stretchT = Math.min(displacement / maxDisp, 1);
-
-                const currentWidth = p.minRadius * 2 + (p.maxPillWidth - p.minRadius * 2) * stretchT;
-                const currentHeight = p.pillHeight;
-
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.rotation);
-                ctx.beginPath();
-                const hw = currentWidth / 2;
-                const hh = currentHeight / 2;
-                const cr = hh;
-                ctx.moveTo(-hw + cr, -hh);
-                ctx.lineTo(hw - cr, -hh);
-                ctx.arcTo(hw, -hh, hw, -hh + cr, cr);
-                ctx.lineTo(hw, hh - cr);
-                ctx.arcTo(hw, hh, hw - cr, hh, cr);
-                ctx.lineTo(-hw + cr, hh);
-                ctx.arcTo(-hw, hh, -hw, hh - cr, cr);
-                ctx.lineTo(-hw, -hh + cr);
-                ctx.arcTo(-hw, -hh, -hw + cr, -hh, cr);
-                ctx.closePath();
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.opacity;
-                ctx.fill();
-                ctx.restore();
-            }
-
-            ctx.globalAlpha = 1.0;
-            requestAnimationFrame(render);
-        }
-
-        render();
-    }
+    // --- Background effect handled in CSS via custom properties ---
 
     // Trigger Navbar Entrance Animation
     setTimeout(() => {
