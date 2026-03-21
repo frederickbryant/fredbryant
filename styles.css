@@ -580,7 +580,7 @@ body.dark-mode .cursor-circle.snapped {
 
 .navbar {
   position: fixed;
-  top: calc(2rem - 10px);
+  top: calc(2rem - 15px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
