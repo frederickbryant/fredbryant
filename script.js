@@ -853,18 +853,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Warp the coordinate space softly
                     vec2 warpedSt = noiseSt + push;
 
-                    // Large, sweeping blobs
-                    float n1 = snoise(warpedSt * 0.35 + u_time * 0.006);
-                    float n2 = snoise(warpedSt * 0.65 - u_time * 0.01 + n1 * 1.5);
+                    // Large, low-frequency base noise for "blobs"
+                    float baseNoise = snoise(warpedSt * 0.4 + u_time * 0.005) * 0.5 + 0.5;
                     
-                    // Map softly to mixing range
-                    float gradientMask = n2 * 0.5 + 0.5;
+                    // Topography mapping: turn the noise into concentric, circular waves
+                    // The frequency (12.0) determines the number of contour lines
+                    float topo = sin(baseNoise * 12.0 - u_time * 0.1) * 0.5 + 0.5;
                     
-                    // Controlled scarcity but physically large and visible
-                    gradientMask = smoothstep(0.4, 1.0, gradientMask);
+                    // We mask the topography so it only appears within the "big shapes"
+                    // This creates clusters of wavy circles rather than a flat grid
+                    float finalMask = smoothstep(0.3, 0.7, topo) * smoothstep(0.2, 0.8, baseNoise);
 
-                    // Blend with accent color (increased visibility factor)
-                    vec3 finalColor = mix(u_bg, u_color, gradientMask * 0.55);
+                    // Blend with accent color
+                    vec3 finalColor = mix(u_bg, u_color, finalMask * 0.45);
 
                     gl_FragColor = vec4(finalColor, 1.0);
                 }
