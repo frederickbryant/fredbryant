@@ -952,6 +952,7 @@ body.dark-mode .project-count {
   height: 100%;
   overflow: hidden;
   gap: 0;
+  justify-content: center; /* Dead centers the middle card for the entrance */
   perspective: 1000px;
   /* For depth if needed */
 }
@@ -959,8 +960,20 @@ body.dark-mode .project-count {
 /* Entrance Animation States */
 .accordion-container.entrance-hidden .project-card {
   opacity: 0;
+  flex: 1; /* Keep flex so they have layout size, but hide them behind center */
   pointer-events: none;
-  transition: none;
+  transition: transform 1.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
+}
+
+/* Side cards tucked behind 3rd card */
+.accordion-container.entrance-hidden .project-card:nth-child(1),
+.accordion-container.entrance-hidden .project-card:nth-child(2) {
+  transform: translateX(200%); /* Pull towards center */
+}
+
+.accordion-container.entrance-hidden .project-card:nth-child(4),
+.accordion-container.entrance-hidden .project-card:nth-child(5) {
+  transform: translateX(-200%); /* Pull towards center */
 }
 
 /* Hide counter during entrance */
@@ -973,33 +986,41 @@ body.dark-mode .project-count {
   opacity: 1;
 }
 
-/* Middle card starts as a dot */
+/* Middle card starts as a minimized point in the center */
 .accordion-container.entrance-hidden .project-card:nth-child(3) {
-  opacity: 1;
-  flex: 0 0 0;
+  opacity: 0; /* Clear start */
+  flex: 0 0 0; /* Zero width to begin */
   min-width: 0;
-  transform: scale(0);
+  transform: scale(0.8); /* Slightly smaller/zoomed-out start */
   border: none;
-  z-index: 20;
+  z-index: 55; /* Persistent top priority */
 }
 
-/* Expand Middle Card Step */
-.accordion-container.animate-expand-middle .project-card:nth-child(3) {
-  flex: 1;
-  transform: scale(1);
-  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), flex 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+/* Phase 1: Center card "pops" up in one unified motion */
+.accordion-container.animate-pop-middle .project-card:nth-child(3) {
+  opacity: 1;
+  flex: 6; /* Expands width to its natural active state */
+  transform: scale(1); /* Expands height/scale simultaneously */
+  z-index: 60; 
+  /* Single transition duration and easing for one continuous motion */
+  transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), 
+              flex 1.2s cubic-bezier(0.19, 1, 0.22, 1),
+              opacity 1.2s ease;
 }
 
-/* Slide Out Others Step */
+/* Phase 2: Others fan out slowly from behind the middle card */
 .accordion-container.animate-slide-out .project-card {
   opacity: 1;
   pointer-events: auto;
-  transition: flex 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.6s ease;
+  transform: translateX(0); /* Bounce back into their layout positions */
+  flex: 1; 
+  /* Identical easing to Phase 1 for seamless velocity continuation */
+  transition: flex 1.8s cubic-bezier(0.19, 1, 0.22, 1), transform 1.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
 }
 
 .accordion-container.animate-slide-out .project-card:nth-child(3) {
-  flex: 6;
-  /* Back to its active state */
+  flex: 6; /* Final active focal width */
+  z-index: 55; /* Keep it on top until the fanning out is complete */
 }
 
 .project-card {

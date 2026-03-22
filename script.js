@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const totalCards = 7; // 1 Red, 5 Intermediate, 1 BG
         
-        // Pushed starting colors strictly toward the "raspberry/pink" side of #ff2751 to avoid any orange undertones
-        const startColor = isDark ? [190, 40, 80] : [235, 80, 110]; 
+        // Muted and Desaturated for a more sophisticated, "brushed metal" ruby look
+        const startColor = [150, 60, 75]; 
         const endColor = isDark ? [17, 17, 17] : [249, 249, 249];
         
         // Background is made transparent so the interactive topography canvas can be seen through the shapes
@@ -401,21 +401,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const entranceObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    // Start Sequence
+                    // Start Two-Stage Sequence
                     setTimeout(() => {
-                        accordionContainer.classList.add('animate-expand-middle');
+                        // Phase 1: Photography card pops up in the center
+                        accordionContainer.classList.add('animate-pop-middle');
 
                         setTimeout(() => {
+                            // Phase 2: Once the pop finishes, others slide out from behind
                             accordionContainer.classList.remove('entrance-hidden');
                             accordionContainer.classList.add('animate-slide-out');
 
-                            // Cleanup after animations finish to allow normal accordion behavior
+                            // Final Cleanup
                             setTimeout(() => {
-                                accordionContainer.classList.remove('animate-expand-middle');
+                                accordionContainer.classList.remove('animate-pop-middle');
                                 accordionContainer.classList.remove('animate-slide-out');
-                            }, 1200);
-                        }, 800);
-                    }, 300);
+                            }, 2000); // Wait for the slow 1.8s slide to finish
+                        }, 800); 
+                    }, 500);
 
                     entranceObserver.unobserve(entry.target);
                 }
