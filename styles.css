@@ -1663,3 +1663,16 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
     transform: none !important;
   }
 }
+
+@media screen and (max-width: 1024px) {
+  /* Prevent the red "stuck" state on theme-toggle after tap */
+  .theme-toggle:hover {
+    background: var(--glass-bg) !important;
+    border-color: var(--glass-border) !important;
+    color: inherit !important;
+  }
+  
+  body.dark-mode .theme-toggle:hover {
+    color: #f9f9f9 !important;
+  }
+}
