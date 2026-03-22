@@ -278,6 +278,43 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // --- MODERN SYNCED PARALLAX ---
+        const sections = document.querySelectorAll('.section');
+        const vh = window.innerHeight;
+        const bgCanvas = document.getElementById('gradient-canvas');
+
+        sections.forEach((section, index) => {
+            const container = section.querySelector('.content-container');
+            if (!container) return;
+
+            // Offset from the exact center of viewport
+            const sectionMiddle = navItems[index] ? navItems[index].offsetTop : (index * vh);
+            const relativeOffset = (scrollTop - sectionMiddle) / vh; // -1 to +1
+
+            // Clamp relativeOffset to reasonable bounds to prevent "overshooting"
+            const progress = Math.max(-1, Math.min(1, relativeOffset));
+
+            // Unified Parallax Logic (Zero delay between aspects)
+            // 1. Translation: Content floats 1-to-1 with scroll
+            const translateY = progress * (vh * 0.35); // Move by 35% of viewport
+            // 2. Scale: Continuous shrinking
+            const scale = 1 - Math.abs(progress) * 0.08; // 0.92 to 1.0
+            // 3. Opacity: Sharp, high-speed fade
+            const opacity = Math.max(0, 1 - Math.abs(progress) * 2.8); // Fully faded by 35% scroll
+            // 4. Blur: Match the scaling for bokeh depth
+            const blur = Math.abs(progress) * 12;
+
+            // Apply all in one frame to prevent delay
+            container.style.transform = `translateY(${translateY}px) scale(${scale})`;
+            container.style.opacity = opacity;
+            container.style.filter = `blur(${blur}px)`;
+        });
+
+        // 5. Background Parallax Offset: Shifts the topography deeper behind you
+        if (bgCanvas) {
+            bgCanvas.style.transform = `translateY(${scrollTop * 0.1}px)`;
+        }
+
         // Handle scrolling before the first section (e.g. bounce)
         if (scrollTop < navItems[0].offsetTop) {
             startIndex = 0;

@@ -519,13 +519,14 @@ body.dark-mode .cursor-circle.snapped {
   max-width: 1000px;
   margin: 0 auto;
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
+  /* Start transparent, JS will take over immediately on scroll/load */
+  will-change: transform, opacity, filter;
+  transition: transform 0.1s linear; /* Tiny bit of inertia only for micro-smoothness */
 }
 
+/* Let the Section Scroll JS handle all visibility and parallax states */
 .section.is-visible .content-container {
-  opacity: 1;
-  transform: translateY(0);
+  /* Class still useful for other things, but opacity is now dynamic */
 }
 
 /* Modern Text Reveal Standard */
