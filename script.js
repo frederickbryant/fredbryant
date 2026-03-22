@@ -988,7 +988,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Using a 25/75 blend between brand red (#ff2751) and our background colors
                 // This creates a much more subtle, sophisticated "branded haze"
                 const bgHex = isDark ? '#111111' : '#f9f9f9';
-                const accentHex = isDark ? '#4d1721' : '#f591a3'; 
+                const accentHex = isDark ? '#4d1721' : '#d89aa3'; // Balanced contrast to match dark mode's presence
 
                 gl.uniform3fv(locations.bg, hexToRgb(bgHex));
                 gl.uniform3fv(locations.color, hexToRgb(accentHex));
