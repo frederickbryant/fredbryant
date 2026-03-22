@@ -859,17 +859,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Secondary, medium-frequency noise to break up solid black areas
                     float detailNoise = snoise(warpedSt * 0.9 - u_time * 0.012) * 0.5 + 0.5;
                     
-                    // Topography mapping: turn the noise into concentric, circular waves
-                    float topo = sin(baseNoise * 14.0 - u_time * 0.1) * 0.5 + 0.5;
+                    // Lowered topography frequency (14.0 -> 7.0) to reduce "strandiness" and make waves thicker
+                    float topo = sin(baseNoise * 7.5 - u_time * 0.1) * 0.5 + 0.5;
                     
-                    // Wide interpolation curves for maximum gradation
-                    // This ensures there are never hard edges between colors
-                    float topoMask = smoothstep(0.1, 0.9, topo);
-                    float baseMask = smoothstep(0.0, 1.0, baseNoise);
-                    float detailMask = smoothstep(0.3, 0.7, detailNoise) * 0.15; // Faint background haze
+                    // Ultra-soft masking to eliminate any perceived "hard" strands
+                    float topoMask = pow(topo, 1.2) * 0.6; // Soften the peak of each wavy layer
+                    float baseMask = pow(baseNoise, 1.0); // Keep the base large and fluid
                     
-                    // Combine them for a deep, layered feeling with zero "flat" zones
-                    float finalMask = (topoMask * baseMask * 0.5) + detailMask;
+                    // Increase the reach of the faint detail haze to fill in "empty" zones
+                    float detailMask = detailNoise * 0.25; 
+                    
+                    // Final composition that avoids solid colors or thin strands
+                    float finalMask = (topoMask * baseMask) + detailMask;
 
                     // Blend with accent color
                     vec3 finalColor = mix(u_bg, u_color, finalMask);
@@ -958,10 +959,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentMouseY += (targetMouseY - currentMouseY) * 0.08;
                 gl.uniform2f(locations.mouse, currentMouseX, currentMouseY);
                 
-                gl.uniform3fv(locations.color, accentRgb);
-
                 const isDark = document.body.classList.contains('dark-mode');
-                gl.uniform3fv(locations.bg, isDark ? hexToRgb('#111111') : hexToRgb('#f9f9f9'));
+                
+                // Using extremely subtle tints/shades of our brand red (#ff2751)
+                // This brings back the brand's warmth but stays sophisticated and low-contrast
+                // Using a 25/75 blend between brand red (#ff2751) and our background colors
+                // This creates a much more subtle, sophisticated "branded haze"
+                const bgHex = isDark ? '#111111' : '#f9f9f9';
+                const accentHex = isDark ? '#4d1721' : '#fbc5cf'; 
+
+                gl.uniform3fv(locations.bg, hexToRgb(bgHex));
+                gl.uniform3fv(locations.color, hexToRgb(accentHex));
 
                 gl.drawArrays(gl.TRIANGLES, 0, 6);
                 requestAnimationFrame(renderWebGL);
