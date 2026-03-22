@@ -1122,8 +1122,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             targetX = rect.left + rect.width / 2;
             targetY = rect.top + rect.height / 2;
-            targetW = rect.width + padding * 2;
-            targetH = rect.height + padding * 2;
+            
+            // Standardize snap size for fixed buttons (theme toggle, close buttons) to avoid parallax scaling artifacts
+            if (snapTarget.classList.contains('theme-toggle') || snapTarget.classList.contains('close-portfolio')) {
+                targetW = 50 + padding * 2;
+                targetH = 50 + padding * 2;
+            } else {
+                targetW = rect.width + padding * 2;
+                targetH = rect.height + padding * 2;
+            }
 
             // Determine border radius based on element shape, with a fallback for sharp elements
             const style = window.getComputedStyle(snapTarget);
