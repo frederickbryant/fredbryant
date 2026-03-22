@@ -243,23 +243,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const sectionMiddle = navItemsLocal[index] ? navItemsLocal[index].offsetTop : (index * vh);
             
-            // Normalize scroll distance based on a fixed viewport pivot (1500px) 
+            // Normalize scroll distance based on a fixed viewport pivot (1000px) 
             // instead of the raw variable 'vh' to keep the physical pixel-per-scroll 
-            // speed identical across all devices. We use a larger pivot (1500) to 
-            // significantly stretch/slow the progress over distance.
-            const normalizationPivot = 1500;
+            // speed identical across all devices.
+            const normalizationPivot = 1000;
             const progress = Math.max(-1, Math.min(1, (scrollTop - sectionMiddle) / normalizationPivot));
 
             // Applied directly as inline styles for maximum 1-to-1 responsiveness
             // We use the actual vh here for the movement intensity so it stays proportionally correct to the screen.
-            const translateY = progress * (vh * 0.04); // Ultra-minimal drift for maximum stability
-            const scale = 1 - Math.abs(progress) * 0.03; 
-            const opacity = 1 - Math.abs(progress) * 0.7; // Gentler fade out for a softer transition
-            const blur = Math.abs(progress) * 5; // Minimal focus depth for high-end look
+            const translateY = progress * (vh * 0.20); 
+            const scale = 1 - Math.abs(progress) * 0.05; 
+            const opacity = 1 - Math.abs(progress) * 1.5; 
 
             container.style.transform = `translateY(${translateY}px) scale(${scale})`;
             container.style.opacity = Math.max(0, opacity);
-            container.style.filter = `blur(${blur}px)`;
+            // Dynamic blur removed for cleaner high-definition look
+
         });
     };
 

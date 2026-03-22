@@ -519,9 +519,8 @@ body.dark-mode .cursor-circle.snapped {
   max-width: 1000px;
   margin: 0 auto;
   opacity: 0;
-  filter: blur(10px);
-  /* Purely dynamic movement handled by JS Parallax */
-  will-change: transform, opacity, filter;
+  /* Blur removed for a cleaner, sharper entrance */
+  will-change: transform, opacity;
 }
 
 /* Reveal classes removed to prevent conflict with liquid JS parallax */
