@@ -812,6 +812,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 uniform vec3 u_color;
                 uniform vec3 u_bg;
 
+                mat2 rotate(float angle) {
+                    return mat2(cos(angle), -sin(angle),
+                                sin(angle), cos(angle));
+                }
+
                 // 2D Simplex Noise Function needed for soft mesh gradients
                 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
                 float snoise(vec2 v){
@@ -845,16 +850,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     vec2 mouse = u_mouse.xy / u_resolution.xy;
                     mouse.x *= u_resolution.x / u_resolution.y;
 
-                    // Extremely wide, gentle displacement force from the mouse (pushing the fog)
-                    float dist = distance(noiseSt, mouse);
+                    // Centered rotation for the topography pattern
+                    // Using -u_time for a clockwise motion
+                    vec2 centeredSt = (noiseSt - vec2(0.5 * u_resolution.x / u_resolution.y, 0.5));
+                    centeredSt *= rotate(-u_time * 0.05);
+                    vec2 rotatedSt = centeredSt + vec2(0.5 * u_resolution.x / u_resolution.y, 0.5);
+
+                    // Displacement force from the mouse (pushing the fog)
+                    float dist = distance(rotatedSt, mouse);
                     float force = exp(-dist * 2.5) * 0.15;
-                    // By subtracting the push vector, we sample coordinates closer to the mouse, 
-                    // which effectively "pushes" the drawn texture away from the cursor visually.
+                    
+                    // Repulsion vector (pushing away from the cursor)
+                    // We use original noiseSt vs mouse for direct physical feeling
                     vec2 push = normalize(noiseSt - mouse + vec2(0.001)) * force;
-                    vec2 warpedSt = noiseSt - push;
+                    vec2 warpedSt = rotatedSt - push;
 
                     // Large, low-frequency base noise for major movement
                     float baseNoise = snoise(warpedSt * 0.35 + u_time * 0.005) * 0.5 + 0.5;
+                    
+                    // Persistent central oval blob logic
+                    vec2 centerPos = vec2(0.5 * u_resolution.x / u_resolution.y, 0.5);
+                    // We use rotatedSt so the "squish" of the oval rotates clockwise with the pattern
+                    vec2 toCenter = rotatedSt - centerPos;
+                    float ovalDist = length(toCenter * vec2(0.7, 1.3)); // Squish to create an oval
+                    float centerBlob = 1.0 - smoothstep(0.0, 0.5, ovalDist);
+                    
+                    // Bias the noise field towards the center to ensure a constant "presence"
+                    baseNoise = mix(baseNoise, 1.0, centerBlob * 0.45);
                     
                     // Secondary, medium-frequency noise to break up solid black areas
                     float detailNoise = snoise(warpedSt * 0.9 - u_time * 0.012) * 0.5 + 0.5;
@@ -966,7 +988,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Using a 25/75 blend between brand red (#ff2751) and our background colors
                 // This creates a much more subtle, sophisticated "branded haze"
                 const bgHex = isDark ? '#111111' : '#f9f9f9';
-                const accentHex = isDark ? '#4d1721' : '#fbc5cf'; 
+                const accentHex = isDark ? '#4d1721' : '#f591a3'; 
 
                 gl.uniform3fv(locations.bg, hexToRgb(bgHex));
                 gl.uniform3fv(locations.color, hexToRgb(accentHex));
