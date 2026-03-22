@@ -891,8 +891,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Increase the reach of the faint detail haze to fill in "empty" zones
                     float detailMask = detailNoise * 0.25; 
                     
-                    // Final composition that avoids solid colors or thin strands
-                    float finalMask = (topoMask * baseMask) + detailMask;
+                    // Final composition: we multiply by (1.0 - centerBlob) to suppress color in the middle
+                    // This creates a clean "hole" in the patterns for the center text to remain readable
+                    float finalMask = ((topoMask * baseMask) + detailMask) * (1.0 - centerBlob * 0.9);
 
                     // Blend with accent color
                     vec3 finalColor = mix(u_bg, u_color, finalMask);
