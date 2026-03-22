@@ -44,8 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalCards = 7; // 1 Red, 5 Intermediate, 1 BG
         
         // Muted and Desaturated for a more sophisticated, "brushed metal" ruby look
-        const startColor = [150, 60, 75]; 
-        const endColor = isDark ? [17, 17, 17] : [249, 249, 249];
+        // Adjusted proportionally to be lighter since background shifted from #111111 to #141414
+        const startColor = [176, 70, 88]; 
+        const endColor = isDark ? [20, 20, 20] : [249, 249, 249];
         
         // Background is made transparent so the interactive topography canvas can be seen through the shapes
         loader.style.backgroundColor = 'transparent';
@@ -1029,8 +1030,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // This brings back the brand's warmth but stays sophisticated and low-contrast
                 // Using a 25/75 blend between brand red (#ff2751) and our background colors
                 // This creates a much more subtle, sophisticated "branded haze"
-                const bgHex = isDark ? '#111111' : '#f9f9f9';
-                const accentHex = isDark ? '#4d1721' : '#adadad'; // Neutral grey for light mode (equivalent contrast)
+                const bgHex = isDark ? '#141414' : '#f9f9f9';
+                const accentHex = isDark ? '#5a1b26' : '#adadad'; // Neutral grey for light mode (equivalent contrast)
 
                 gl.uniform3fv(locations.bg, hexToRgb(bgHex));
                 gl.uniform3fv(locations.color, hexToRgb(accentHex));

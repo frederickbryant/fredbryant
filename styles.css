@@ -84,9 +84,9 @@
   /* Off-white base */
   --accent-color: #ff2751;
   /* Vibrant red */
-  --text-main: #111111;
+  --text-main: #141414;
   /* Dark text for readability */
-  --text-muted: #111111;
+  --text-muted: #141414;
   /* Darker grey for better contrast */
   --glass-bg: rgba(0, 0, 0, 0.03);
   --glass-border: rgba(0, 0, 0, 0.08);
@@ -100,13 +100,13 @@
 }
 
 body.dark-mode {
-  --bg-color: #111111;
+  --bg-color: #141414;
   --text-main: #f9f9f9;
   --text-muted: #f9f9f9;
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-hover: rgba(255, 255, 255, 0.1);
-  --nav-bg: rgba(17, 17, 17, 0.6);
+  --nav-bg: rgba(20, 20, 20, 0.6);
 }
 
 * {
