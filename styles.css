@@ -1636,3 +1636,19 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
 .contact-link-wrap .round-btn {
   pointer-events: auto !important;
 }
+/* Disable custom cursor on Mobile and Tablet */
+@media screen and (max-width: 1024px) {
+  * {
+    cursor: auto !important;
+  }
+  
+  .cursor-circle {
+    display: none !important;
+    pointer-events: none !important;
+  }
+  
+  /* Restore default pointer behavior for interactive elements */
+  a, button, [role="button"], .portfolio-item, .nav-link, .theme-toggle, .scroll-btn, .round-btn {
+    cursor: pointer !important;
+  }
+}
