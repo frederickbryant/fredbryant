@@ -14,19 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
             threshold: 0.3
         };
 
-        const sectionObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                }
-            });
-        }, observerOptions);
-
-        sections.forEach(section => {
-            sectionObserver.observe(section);
-        });
-
-        // Intersection Observer for scroll reveal animations
+        // Reveal logic for other static elements
         const revealObserverOptions = {
             root: scrollContainer,
             rootMargin: '0px 0px -50px 0px',
@@ -151,10 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                             
                             // Reveal site
-                            setTimeout(() => {
+                             setTimeout(() => {
                                  document.body.classList.remove('loading-active');
                                  initSiteAnimations();
                                  if (typeof updateSmoothIndicator === 'function') updateSmoothIndicator();
+                                 if (typeof updateSectionParallax === 'function') updateSectionParallax();
                                  
                                  // Trigger matching UI entrance animations for top (navbar) and bottom (toggle)
                                  const navbar = document.querySelector('.navbar');
@@ -164,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                                  loader.style.opacity = '0';
                                  setTimeout(() => loader.remove(), 1000);
-                             }, 1800); // Triggers as soon as the expanding block visually covers the camera, instead of waiting for the full 3.2s technical completion
+                             }, 1800); 
                             
                         }, 1800); // Paused longer to let the 3.2s coasting entrance breathe
                     }
@@ -174,6 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         document.body.classList.remove('loading-active');
         initSiteAnimations();
+        if (typeof updateSmoothIndicator === 'function') updateSmoothIndicator();
+        if (typeof updateSectionParallax === 'function') updateSectionParallax();
     }
 
     // --- Modern Text Reveal Setup ---
@@ -232,130 +223,140 @@ document.addEventListener('DOMContentLoaded', () => {
     // Continuous Nav Indicator Sync
     const indicator = document.querySelector('.nav-indicator');
 
+    const updateSectionParallax = () => {
+        const scrollTop = scrollContainer.scrollTop;
+        const vh = window.innerHeight;
+        const sections = document.querySelectorAll('.section');
+        
+        // Map nav links to their target sections originally (reusing the logic for parallax positioning)
+        const navItemsLocal = Array.from(navLinks).map(link => {
+            const targetId = link.getAttribute('href');
+            let targetSection = null;
+            if (targetId && targetId !== '#') targetSection = document.querySelector(targetId);
+            return { offsetTop: targetSection ? targetSection.offsetTop : 0 };
+        });
+
+        sections.forEach((section, index) => {
+            const container = section.querySelector('.content-container');
+            if (!container) return;
+
+            const sectionMiddle = navItemsLocal[index] ? navItemsLocal[index].offsetTop : (index * vh);
+            const relativeOffset = (scrollTop - sectionMiddle) / vh;
+            const progress = Math.max(-1, Math.min(1, relativeOffset));
+
+            // Applied directly as inline styles for maximum 1-to-1 responsiveness
+            const translateY = progress * (vh * 0.25); 
+            const scale = 1 - Math.abs(progress) * 0.05; 
+            const opacity = 1 - Math.abs(progress) * 1.5; // Faster fade for punchier transition
+            const blur = Math.abs(progress) * 15; 
+
+            container.style.transform = `translateY(${translateY}px) scale(${scale})`;
+            container.style.opacity = Math.max(0, opacity);
+            container.style.filter = `blur(${blur}px)`;
+        });
+    };
+
     const updateSmoothIndicator = () => {
         if (!indicator) return;
 
-        // Map nav links to their target sections originally
         const navItems = Array.from(navLinks).map(link => {
             const targetId = link.getAttribute('href');
             let targetSection = null;
-            if (targetId && targetId !== '#') {
-                targetSection = document.querySelector(targetId);
-            }
+            if (targetId && targetId !== '#') targetSection = document.querySelector(targetId);
             return {
                 link: link,
                 section: targetSection,
                 offsetTop: targetSection ? targetSection.offsetTop : 0
             };
-        }).filter(item => item.section); // Only keep valid sections
-
-
+        }).filter(item => item.section);
 
         const scrollTop = scrollContainer.scrollTop;
-
-        // Find which two mapped items we're between
         let startIndex = 0;
         let endIndex = 0;
         let t = 0;
 
         for (let i = 0; i < navItems.length; i++) {
             if (i === navItems.length - 1) {
-                // We are at or past the last section
-                startIndex = i;
-                endIndex = i;
-                t = 0;
+                startIndex = i; endIndex = i; t = 0;
                 break;
             }
             if (scrollTop >= navItems[i].offsetTop && scrollTop < navItems[i + 1].offsetTop) {
                 startIndex = i;
                 endIndex = i + 1;
-                // Calculate interpolation factor
                 let sectionHeight = navItems[i + 1].offsetTop - navItems[i].offsetTop;
-                if (sectionHeight > 0) {
-                    t = (scrollTop - navItems[i].offsetTop) / sectionHeight;
-                }
+                if (sectionHeight > 0) t = (scrollTop - navItems[i].offsetTop) / sectionHeight;
                 break;
             }
         }
 
-        // --- MODERN SYNCED PARALLAX ---
-        const sections = document.querySelectorAll('.section');
-        const vh = window.innerHeight;
-        const bgCanvas = document.getElementById('gradient-canvas');
-
-        sections.forEach((section, index) => {
-            const container = section.querySelector('.content-container');
-            if (!container) return;
-
-            // Offset from the exact center of viewport
-            const sectionMiddle = navItems[index] ? navItems[index].offsetTop : (index * vh);
-            const relativeOffset = (scrollTop - sectionMiddle) / vh; // -1 to +1
-
-            // Clamp relativeOffset to reasonable bounds to prevent "overshooting"
-            const progress = Math.max(-1, Math.min(1, relativeOffset));
-
-            // Unified Parallax Logic (Zero delay between aspects)
-            // 1. Translation: Content floats 1-to-1 with scroll
-            const translateY = progress * (vh * 0.35); // Move by 35% of viewport
-            // 2. Scale: Continuous shrinking
-            const scale = 1 - Math.abs(progress) * 0.08; // 0.92 to 1.0
-            // 3. Opacity: Sharp, high-speed fade
-            const opacity = Math.max(0, 1 - Math.abs(progress) * 2.8); // Fully faded by 35% scroll
-            // 4. Blur: Match the scaling for bokeh depth
-            const blur = Math.abs(progress) * 12;
-
-            // Apply all in one frame to prevent delay
-            container.style.transform = `translateY(${translateY}px) scale(${scale})`;
-            container.style.opacity = opacity;
-            container.style.filter = `blur(${blur}px)`;
-        });
-
-        // 5. Background Parallax Offset: Shifts the topography deeper behind you
-        if (bgCanvas) {
-            bgCanvas.style.transform = `translateY(${scrollTop * 0.1}px)`;
-        }
-
-        // Handle scrolling before the first section (e.g. bounce)
-        if (scrollTop < navItems[0].offsetTop) {
-            startIndex = 0;
-            endIndex = 0;
-            t = 0;
-        }
+        if (scrollTop < navItems[0].offsetTop) { startIndex = 0; endIndex = 0; t = 0; }
 
         const startItem = navItems[startIndex];
         const endItem = navItems[endIndex];
-
         const containerRect = startItem.link.parentElement.getBoundingClientRect();
         const startRect = startItem.link.getBoundingClientRect();
         const endRect = endItem.link.getBoundingClientRect();
-
         const startLeft = startRect.left - containerRect.left;
         const startWidth = startRect.width;
-
         const endLeft = endRect.left - containerRect.left;
         const endWidth = endRect.width;
-
         const currentLeft = startLeft + (endLeft - startLeft) * t;
         const currentWidth = startWidth + (endWidth - startWidth) * t;
 
         indicator.style.width = `${currentWidth}px`;
         indicator.style.transform = `translateX(${currentLeft}px)`;
 
-        // Update active text color Class based on midpoint
         navLinks.forEach(nav => nav.classList.remove('active'));
-        if (t < 0.5) {
-            startItem.link.classList.add('active');
-        } else {
-            endItem.link.classList.add('active');
-        }
+        if (t < 0.5) startItem.link.classList.add('active');
+        else endItem.link.classList.add('active');
     };
 
-    // Theme Toggle setup
+    // Unified scroll execution engine
+    const runUnifiedScrollUpdates = () => {
+        window.requestAnimationFrame(() => {
+            updateSmoothIndicator();
+            updateSectionParallax();
+            
+            // Sync theme button rotation
+            const themeBtnLocal = document.querySelector('.theme-toggle');
+            if (themeBtnLocal) {
+                const scrollDistance = scrollContainer.scrollTop;
+                themeBtnLocal.style.transform = `rotate(${scrollDistance * 0.15}deg)`;
+            }
+        });
+    };
+
+    if (scrollContainer) {
+        scrollContainer.addEventListener('scroll', runUnifiedScrollUpdates);
+        
+        // Initial positioning for the landing state
+        window.requestAnimationFrame(runUnifiedScrollUpdates);
+        window.addEventListener('resize', runUnifiedScrollUpdates);
+    }
+
+    // Modern Nav link handling
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href');
+            if (targetId === '#') return;
+            const targetSection = document.querySelector(targetId);
+
+            if (targetSection && scrollContainer) {
+                scrollContainer.style.scrollSnapType = 'none';
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+                setTimeout(() => {
+                    scrollContainer.style.scrollSnapType = 'y mandatory';
+                }, 800);
+            }
+        });
+    });
+
+    // Theme Toggle logic
     const themeBtn = document.querySelector('.theme-toggle');
     const sunIcon = document.querySelector('.sun-icon');
     const moonIcon = document.querySelector('.moon-icon');
 
-    // Check device preference initially
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.body.classList.add('dark-mode');
         if (sunIcon && moonIcon) {
@@ -377,34 +378,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (scrollContainer && indicator) {
-        scrollContainer.addEventListener('scroll', () => {
-            window.requestAnimationFrame(() => {
-                updateSmoothIndicator();
-
-                // Rotate theme button on scroll
-                if (themeBtn) {
-                    const scrollDistance = scrollContainer.scrollTop;
-                    themeBtn.style.transform = `rotate(${scrollDistance * 0.15}deg)`;
-                }
-            });
-        });
-
-        // Also rotate theme button when scrolling the portfolio overlay
-        const portfolioOverlay = document.getElementById('photography-portfolio');
-        if (portfolioOverlay && themeBtn) {
-            portfolioOverlay.addEventListener('scroll', () => {
-                window.requestAnimationFrame(() => {
-                    const scrollDistance = portfolioOverlay.scrollTop;
-                    themeBtn.style.transform = `rotate(${scrollDistance * 0.15}deg)`;
-                });
-            });
-        }
-        
-        // Initial setup
-        window.requestAnimationFrame(updateSmoothIndicator);
-        window.addEventListener('resize', () => {
-            window.requestAnimationFrame(updateSmoothIndicator);
+    // Portfolio interaction sync
+    const portfolioOverlay = document.getElementById('photography-portfolio');
+    if (portfolioOverlay && themeBtn) {
+        portfolioOverlay.addEventListener('scroll', () => {
+             window.requestAnimationFrame(() => {
+                 themeBtn.style.transform = `rotate(${portfolioOverlay.scrollTop * 0.15}deg)`;
+             });
         });
     }
 
@@ -520,7 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Portfolio Overlay Logic ---
-    const portfolioOverlay = document.getElementById('photography-portfolio');
     const closePortfolioBtn = document.querySelector('.close-portfolio');
 
     function openPortfolio(sourceElement) {

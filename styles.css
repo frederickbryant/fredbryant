@@ -519,15 +519,13 @@ body.dark-mode .cursor-circle.snapped {
   max-width: 1000px;
   margin: 0 auto;
   opacity: 0;
-  /* Start transparent, JS will take over immediately on scroll/load */
+  filter: blur(10px);
+  /* Purely dynamic movement handled by JS Parallax */
   will-change: transform, opacity, filter;
-  transition: transform 0.1s linear; /* Tiny bit of inertia only for micro-smoothness */
 }
 
-/* Let the Section Scroll JS handle all visibility and parallax states */
-.section.is-visible .content-container {
-  /* Class still useful for other things, but opacity is now dynamic */
-}
+/* Reveal classes removed to prevent conflict with liquid JS parallax */
+
 
 /* Modern Text Reveal Standard */
 .reveal-word {
