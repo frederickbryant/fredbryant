@@ -251,10 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Applied directly as inline styles for maximum 1-to-1 responsiveness
             // We use the actual vh here for the movement intensity so it stays proportionally correct to the screen.
-            const translateY = progress * (vh * 0.20); // Slightly eased translation for more "anchor"
-            const scale = 1 - Math.abs(progress) * 0.05; 
-            const opacity = 1 - Math.abs(progress) * 1.5; 
-            const blur = Math.abs(progress) * 15; 
+            const translateY = progress * (vh * 0.08); // Heavily anchored for a more luxurious, grounded feel
+            const scale = 1 - Math.abs(progress) * 0.04; 
+            const opacity = 1 - Math.abs(progress) * 1.0; // Gentler fade out
+            const blur = Math.abs(progress) * 8; // Softer focus depth
 
             container.style.transform = `translateY(${translateY}px) scale(${scale})`;
             container.style.opacity = Math.max(0, opacity);
