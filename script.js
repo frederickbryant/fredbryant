@@ -54,11 +54,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const isDark = document.body.classList.contains('dark-mode') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         
         const totalCards = 7; // 1 Red, 5 Intermediate, 1 BG
-        const startColor = [255, 39, 81]; // Red
+        
+        // Match the sophisticated background tints: #4d1721 for Dark, #adadad for Light
+        // This ensures the loader shapes feel like an organic part of the topographical orbit
+        const startColor = isDark ? [77, 23, 33] : [173, 173, 173]; 
         const endColor = isDark ? [17, 17, 17] : [249, 249, 249];
         
-        // Background is solidified in the red accent color. As the cards drop in on top, they carve out their borders towards the center
-        loader.style.backgroundColor = `rgb(${startColor[0]}, ${startColor[1]}, ${startColor[2]})`;
+        // Background is made transparent so the interactive topography canvas can be seen through the shapes
+        loader.style.backgroundColor = 'transparent';
         
         for (let i = 0; i < totalCards; i++) {
             const card = document.createElement('div');
@@ -72,20 +75,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const g = Math.round(endColor[1] + (startColor[1] - endColor[1]) * progress);
             const b = Math.round(endColor[2] + (startColor[2] - endColor[2]) * progress);
             
-            card.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+            // Organic, frosted glass effect that directly lenses the topography background
+            card.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${0.05 + progress * 0.3})`;
+            // Adds heavy blurring to further separate the layers, creating a deep liquid look
+            card.style.backdropFilter = `blur(${6 + i * 2}px) saturate(1.2)`;
+            card.style.webkitBackdropFilter = `blur(${6 + i * 2}px) saturate(1.2)`;
+            // Very subtle rim was removed to eliminate any rectangular edge visibility against the background
+            // card.style.border = `1px solid rgba(255, 255, 255, ${0.05 + progress * 0.15})`;
             
             if (i === 0) {
                 // Initial state for front popup card
                 card.style.opacity = '0';
-                card.style.transform = `scale(0.8)`; // Full screen pops from 80% to 100%
-                card.style.clipPath = `inset(0vmin)`;
-                card.style.webkitClipPath = `inset(0vmin)`;
+                card.style.transform = `scale(1.1) rotate(0deg)`; // Card starts larger than viewport to hide its edges
+                card.style.clipPath = `ellipse(150vmin 150vmin at 50% 50%)`;
+                card.style.webkitClipPath = `ellipse(150vmin 150vmin at 50% 50%)`;
             } else {
-                // Initial state for newer cards (starts huge near camera)
+                // Initial state for newer cards (starts huge near camera with a slight swirl)
                 card.style.opacity = '0';
-                card.style.transform = `scale(2.5)`;
-                card.style.clipPath = `inset(0vmin)`;
-                card.style.webkitClipPath = `inset(0vmin)`;
+                card.style.transform = `scale(2.5) rotate(-20deg)`;
+                card.style.clipPath = `ellipse(150vmin 150vmin at 50% 50%)`;
+                card.style.webkitClipPath = `ellipse(150vmin 150vmin at 50% 50%)`;
             }
             
             tmStack.appendChild(card);
@@ -97,9 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Slow, lingering settling curve
             firstCard.style.transition = 'transform 2.0s cubic-bezier(0.1, 1, 0.1, 1), clip-path 2.0s ease, -webkit-clip-path 2.0s ease, opacity 0.6s ease';
             firstCard.style.opacity = '1';
-            firstCard.style.transform = 'scale(1)';
-            firstCard.style.clipPath = 'inset(0vmin)'; 
-            firstCard.style.webkitClipPath = 'inset(0vmin)';
+            firstCard.style.transform = 'scale(1) rotate(0deg)';
+            firstCard.style.clipPath = 'ellipse(150vmin 150vmin at 50% 50%)'; 
+            firstCard.style.webkitClipPath = 'ellipse(150vmin 150vmin at 50% 50%)';
             
             // 2. Start heavily overlapping drops for the remaining inner cards
             for (let i = 1; i < totalCards; i++) {
@@ -109,13 +118,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     c.style.transition = 'transform 3.2s cubic-bezier(0.1, 1, 0.1, 1), clip-path 3.2s cubic-bezier(0.1, 1, 0.1, 1), -webkit-clip-path 3.2s cubic-bezier(0.1, 1, 0.1, 1), opacity 0.8s ease';
                     c.style.opacity = '1';
                     
-                    // Flatten local perspective/size distortions
-                    c.style.transform = `scale(1)`;
+                    // Flatten local perspective/size distortions, settle the swirl
+                    c.style.transform = `scale(1) rotate(0deg)`;
                     
-                    // Allocate exact segments (13 identical thickness units spanning the smallest screen dimension)
-                    const offset = i * (100 / 13); 
-                    c.style.clipPath = `inset(${offset}vmin)`;
-                    c.style.webkitClipPath = `inset(${offset}vmin)`;
+                    // Create soft, topography-like concentric ovals shrinking towards the center
+                    // We slightly alternate the radii to make them look wavy/organic instead of perfect circles
+                    const span = 55; // Base max radius size
+                    const rx = span - (i * (span / totalCards)) + (i % 2 === 0 ? 8 : 0); 
+                    const ry = span - (i * (span / totalCards)) + (i % 2 !== 0 ? 8 : 0); 
+                    
+                    c.style.clipPath = `ellipse(${rx}vmin ${ry}vmin at 50% 50%)`;
+                    c.style.webkitClipPath = `ellipse(${rx}vmin ${ry}vmin at 50% 50%)`;
                     
                     // 3. If it's the final BG card, we begin the exit sequence
                     if (i === totalCards - 1) {
@@ -128,8 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 layer.style.transition = `transform ${duration}s cubic-bezier(0.6, 0.0, 0.1, 1), opacity ${duration - 0.5}s ease 0.2s`;
                                 
                                 // We scale everyone uniformly up to massive size to shoot past the camera.
-                                // Because we ONLY animate scale and not clip-path, the mathematical boundaries are completely locked and can NEVER intersect.
-                                layer.style.transform = 'scale(40)'; 
+                                // We add a final clockwise swirl to match the new background
+                                layer.style.transform = `scale(40) rotate(${15 + j * 5}deg)`; 
                                 
                                 if (j < totalCards - 1) {
                                     layer.style.opacity = '0'; // Tunnel framing layers fade out
@@ -140,12 +153,19 @@ document.addEventListener('DOMContentLoaded', () => {
                             
                             // Reveal site
                             setTimeout(() => {
-                                document.body.classList.remove('loading-active');
-                                initSiteAnimations();
-                                if (typeof updateSmoothIndicator === 'function') updateSmoothIndicator();
-                                loader.style.opacity = '0';
-                                setTimeout(() => loader.remove(), 1000);
-                            }, 1800); // Triggers as soon as the expanding block visually covers the camera, instead of waiting for the full 3.2s technical completion
+                                 document.body.classList.remove('loading-active');
+                                 initSiteAnimations();
+                                 if (typeof updateSmoothIndicator === 'function') updateSmoothIndicator();
+                                 
+                                 // Trigger matching UI entrance animations for top (navbar) and bottom (toggle)
+                                 const navbar = document.querySelector('.navbar');
+                                 const themeToggle = document.querySelector('.theme-toggle');
+                                 if (navbar) navbar.classList.add('navbar-visible');
+                                 if (themeToggle) themeToggle.classList.add('toggle-visible');
+
+                                 loader.style.opacity = '0';
+                                 setTimeout(() => loader.remove(), 1000);
+                             }, 1800); // Triggers as soon as the expanding block visually covers the camera, instead of waiting for the full 3.2s technical completion
                             
                         }, 1800); // Paused longer to let the 3.2s coasting entrance breathe
                     }
@@ -1145,9 +1165,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Background effect handled in CSS via custom properties ---
 
-    // Trigger Navbar Entrance Animation
-    setTimeout(() => {
-        const navbar = document.querySelector('.navbar');
-        if (navbar) navbar.classList.add('navbar-visible');
-    }, 500);
+
 });
