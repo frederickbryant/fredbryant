@@ -1652,3 +1652,14 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
     cursor: pointer !important;
   }
 }
+
+@media screen and (max-width: 1024px) {
+  /* Disable transform hover effects that can feel like "wiggling" or get stuck on touch */
+  .project-card:hover .card-image-placeholder,
+  .portfolio-item:hover img,
+  .filter-btn:hover,
+  .nav-link:hover,
+  .theme-toggle:hover {
+    transform: none !important;
+  }
+}

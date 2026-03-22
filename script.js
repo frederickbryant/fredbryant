@@ -1050,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let targetH = 16;
         let targetR = '50%';
 
-        if (snapTarget) {
+        if (snapTarget && window.innerWidth > 1024) {
             const rect = snapTarget.getBoundingClientRect();
             // Magnetic pull: move target slightly towards the center of the element
             // but keep it responsive to mouse position within the bounds
