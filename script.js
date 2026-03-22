@@ -850,10 +850,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     vec2 mouse = u_mouse.xy / u_resolution.xy;
                     mouse.x *= u_resolution.x / u_resolution.y;
 
-                    // Centered rotation for the topography pattern
-                    // Using -u_time for a clockwise motion
+                    // Centered orbit: entire pattern rotates clockwise
                     vec2 centeredSt = (noiseSt - vec2(0.5 * u_resolution.x / u_resolution.y, 0.5));
-                    centeredSt *= rotate(-u_time * 0.05);
+                    centeredSt *= rotate(-u_time * 0.12); // Higher frequency for global spin
                     vec2 rotatedSt = centeredSt + vec2(0.5 * u_resolution.x / u_resolution.y, 0.5);
 
                     // Displacement force from the mouse (pushing the fog)
@@ -863,26 +862,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Repulsion vector (pushing away from the cursor)
                     // We use original noiseSt vs mouse for direct physical feeling
                     vec2 push = normalize(noiseSt - mouse + vec2(0.001)) * force;
+                    
+                    // Warp: global rotated coordinates + mouse displacement + local swirling rotation
                     vec2 warpedSt = rotatedSt - push;
-
+                    // Secondary internal swirl to make the blobs themselves rotate clockwise
+                    warpedSt = (warpedSt - vec2(0.5 * u_resolution.x / u_resolution.y, 0.5)) * rotate(-u_time * 0.05) + vec2(0.5 * u_resolution.x / u_resolution.y, 0.5);
+                    
                     // Large, low-frequency base noise for major movement
-                    float baseNoise = snoise(warpedSt * 0.35 + u_time * 0.005) * 0.5 + 0.5;
+                    float baseNoise = snoise(warpedSt * 0.35 + u_time * 0.009) * 0.5 + 0.5;
                     
                     // Persistent central oval blob logic
                     vec2 centerPos = vec2(0.5 * u_resolution.x / u_resolution.y, 0.5);
                     // We use rotatedSt so the "squish" of the oval rotates clockwise with the pattern
                     vec2 toCenter = rotatedSt - centerPos;
                     float ovalDist = length(toCenter * vec2(0.7, 1.3)); // Squish to create an oval
-                    float centerBlob = 1.0 - smoothstep(0.0, 0.5, ovalDist);
+                    // Zone size increased to 0.8 for a much larger clean area behind text
+                    float centerBlob = 1.0 - smoothstep(0.0, 0.8, ovalDist);
                     
                     // Bias the noise field towards the center to ensure a constant "presence"
                     baseNoise = mix(baseNoise, 1.0, centerBlob * 0.45);
                     
                     // Secondary, medium-frequency noise to break up solid black areas
-                    float detailNoise = snoise(warpedSt * 0.9 - u_time * 0.012) * 0.5 + 0.5;
+                    float detailNoise = snoise(warpedSt * 0.9 - u_time * 0.02) * 0.5 + 0.5;
                     
                     // Lowered topography frequency (14.0 -> 7.0) to reduce "strandiness" and make waves thicker
-                    float topo = sin(baseNoise * 7.5 - u_time * 0.1) * 0.5 + 0.5;
+                    float topo = sin(baseNoise * 7.5 - u_time * 0.15) * 0.5 + 0.5;
                     
                     // Ultra-soft masking to eliminate any perceived "hard" strands
                     float topoMask = pow(topo, 1.2) * 0.6; // Soften the peak of each wavy layer
@@ -989,7 +993,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Using a 25/75 blend between brand red (#ff2751) and our background colors
                 // This creates a much more subtle, sophisticated "branded haze"
                 const bgHex = isDark ? '#111111' : '#f9f9f9';
-                const accentHex = isDark ? '#4d1721' : '#d89aa3'; // Balanced contrast to match dark mode's presence
+                const accentHex = isDark ? '#4d1721' : '#adadad'; // Neutral grey for light mode (equivalent contrast)
 
                 gl.uniform3fv(locations.bg, hexToRgb(bgHex));
                 gl.uniform3fv(locations.color, hexToRgb(accentHex));
