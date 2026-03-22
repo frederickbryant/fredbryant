@@ -1244,7 +1244,7 @@ body:not(.dark-mode) .project-card::after {
 /* Theme Toggle Button */
 .theme-toggle {
   position: fixed;
-  bottom: 2.5rem;
+  bottom: 0px; /* Hidden below start edge */
   right: 2.5rem;
   width: 50px;
   height: 50px;
@@ -1261,14 +1261,13 @@ body:not(.dark-mode) .project-card::after {
   cursor: none;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(30px) scale(0.9);
-  transition: background-color 0.3s ease, border-color 0.3s ease, transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease, opacity 1.2s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, bottom 1.2s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease, opacity 1.2s ease;
 }
 
 .theme-toggle.toggle-visible {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0) scale(1);
+  bottom: 2.5rem; /* Revealed at its natural position */
 }
 
 .theme-toggle:hover {
@@ -1695,18 +1694,4 @@ body.loading-active .cursor-circle {
   visibility: hidden !important;
 }
 
-@keyframes toggleEntrance {
-  0% {
-    opacity: 0;
-    transform: translateY(50px) scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 
-.theme-toggle.toggle-visible {
-  animation: toggleEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  pointer-events: all !important;
-}

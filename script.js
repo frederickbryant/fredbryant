@@ -55,9 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const totalCards = 7; // 1 Red, 5 Intermediate, 1 BG
         
-        // Match the sophisticated background tints: #4d1721 for Dark, #adadad for Light
-        // This ensures the loader shapes feel like an organic part of the topographical orbit
-        const startColor = isDark ? [77, 23, 33] : [173, 173, 173]; 
+        // Pushed starting colors strictly toward the "raspberry/pink" side of #ff2751 to avoid any orange undertones
+        const startColor = isDark ? [190, 40, 80] : [235, 80, 110]; 
         const endColor = isDark ? [17, 17, 17] : [249, 249, 249];
         
         // Background is made transparent so the interactive topography canvas can be seen through the shapes
