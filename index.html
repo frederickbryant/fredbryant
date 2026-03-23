@@ -154,13 +154,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- Unified Footer for Filters and Counter -->
-                <div class="accordion-footer">
-
-                    <div class="project-count">
-                        <span class="count-current">01</span> / <span class="count-total">05</span>
-                    </div>
-                </div>
+                <!-- Accordion footer logic now handled via global project-count below -->
             </div>
         </section>
 
@@ -181,6 +175,20 @@
             </div>
         </section>
     </main>
+
+    <!-- Global Project Counter -->
+    <div class="project-count">
+        <div class="count-numbers">
+            <span class="count-current">01</span> / <span class="count-total">05</span>
+        </div>
+        <div class="project-timeline">
+            <div class="timeline-bar" data-index="0"></div>
+            <div class="timeline-bar" data-index="1"></div>
+            <div class="timeline-bar" data-index="2"></div>
+            <div class="timeline-bar" data-index="3"></div>
+            <div class="timeline-bar" data-index="4"></div>
+        </div>
+    </div>
 
     <!-- Theme Toggle -->
     <button class="theme-toggle" aria-label="Toggle Dark Mode">

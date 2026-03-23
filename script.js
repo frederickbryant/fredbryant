@@ -243,8 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const sectionMiddle = navItemsLocal[index] ? navItemsLocal[index].offsetTop : (index * vh);
             
-            // Skip parallax for Section 2 on Mobile as it is now a vertical snapped list
-            if (window.innerWidth <= 1024 && index === 1) {
+            // Skip parallax for Section 2 (Projects) as it is now a vertical snapped stack for all devices
+            if (index === 1) {
                 container.style.transform = '';
                 container.style.opacity = '1';
                 return;
@@ -276,33 +276,109 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetId = link.getAttribute('href');
             let targetSection = null;
             if (targetId && targetId !== '#') targetSection = document.querySelector(targetId);
+            
+            // Critical fix for flattened layouts (display: contents)
+            // If the section itself has no offset, pick its first visual child (the cards)
+            let offset = targetSection ? targetSection.offsetTop : 0;
+            if (targetSection && targetSection.classList.contains('projects') && offset === 0) {
+                const firstCard = targetSection.querySelector('.project-card');
+                if (firstCard) offset = firstCard.offsetTop;
+            }
+
             return {
                 link: link,
                 section: targetSection,
-                offsetTop: targetSection ? targetSection.offsetTop : 0
+                offsetTop: offset
             };
         }).filter(item => item.section);
 
         const scrollTop = scrollContainer.scrollTop;
+        const vh = window.innerHeight;
+
+        const homeSection = navItems[0];
+        const projectsSection = navItems[1];
+        const aboutSection = navItems[2];
+
+        // Track the bottom of the projects stack (last card)
+        const projectCards = projectsSection.section.querySelectorAll('.project-card');
+        const projectsEnd = projectsSection.offsetTop + (projectCards.length > 0 ? projectCards.length * vh : 0);
+
+        // Counter visibility logic and active zone tracking
+        // We use a small offset (+/-10px) to prevent flicker on Home page
+        if (scrollTop >= projectsSection.offsetTop - 10 && scrollTop < projectsEnd - vh / 2) {
+            projectsSection.section.classList.add('is-active-zone');
+            document.body.classList.add('is-projects-active');
+            
+            // Update counter text and timeline bars based on proximity
+            const rawProgress = (scrollTop - projectsSection.offsetTop) / vh;
+            const currentCardIndex = Math.min(projectCards.length, Math.max(1, Math.round(rawProgress) + 1));
+            
+            const countCurrentDisplay = document.querySelector('.count-current');
+            if (countCurrentDisplay) {
+                countCurrentDisplay.textContent = String(currentCardIndex).padStart(2, '0');
+            }
+
+            // Timeline bar proximity scaling - switching to 'width' for natural flex-pushing behavior
+            const bars = document.querySelectorAll('.timeline-bar');
+            bars.forEach((bar, i) => {
+                const distance = Math.abs(rawProgress - i);
+                const proximity = Math.max(0, 1 - distance * 0.8);
+                
+                // Active status based on nearest index
+                bar.classList.toggle('active', i === currentCardIndex - 1);
+                
+                // Real-time smooth width and opacity boost
+                const baseWidth = 24;
+                const targetWidth = baseWidth + (proximity * 48); // Expands up to +48px (total 72px)
+                const opacity = 0.3 + proximity * 0.7; // Brighter focus
+                
+                bar.style.width = `${Math.round(targetWidth)}px`;
+                bar.style.opacity = opacity;
+
+                // Add click listener to navigate to the project card
+                if (!bar.hasListener) {
+                    bar.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (projectCards[i]) {
+                            scrollContainer.scrollTo({
+                                top: projectCards[i].offsetTop,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                    bar.hasListener = true;
+                }
+            });
+        } else {
+            projectsSection.section.classList.remove('is-active-zone');
+            document.body.classList.remove('is-projects-active');
+        }
+
         let startIndex = 0;
         let endIndex = 0;
         let t = 0;
 
-        for (let i = 0; i < navItems.length; i++) {
-            if (i === navItems.length - 1) {
-                startIndex = i; endIndex = i; t = 0;
-                break;
-            }
-            if (scrollTop >= navItems[i].offsetTop && scrollTop < navItems[i + 1].offsetTop) {
-                startIndex = i;
-                endIndex = i + 1;
-                let sectionHeight = navItems[i + 1].offsetTop - navItems[i].offsetTop;
-                if (sectionHeight > 0) t = (scrollTop - navItems[i].offsetTop) / sectionHeight;
-                break;
-            }
+        // --- Sophisticated 3-Zone Mapping for Smooth Sliding ---
+        if (scrollTop < projectsSection.offsetTop) {
+            // Zone 1: Home to Projects (Interpolated Sliding)
+            startIndex = 0;
+            endIndex = 1;
+            const dist = projectsSection.offsetTop - homeSection.offsetTop;
+            t = Math.max(0, Math.min(1, (scrollTop - homeSection.offsetTop) / dist));
+        } 
+        else if (scrollTop < projectsEnd - vh) {
+            // Zone 2: Inside Projects Stack (Locked to PROJECTS)
+            startIndex = 1;
+            endIndex = 1;
+            t = 0;
         }
-
-        if (scrollTop < navItems[0].offsetTop) { startIndex = 0; endIndex = 0; t = 0; }
+        else {
+            // Zone 3: Projects to About (Interpolated Sliding)
+            startIndex = 1;
+            endIndex = 2;
+            const dist = aboutSection.offsetTop - (projectsEnd - vh);
+            t = Math.max(0, Math.min(1, (scrollTop - (projectsEnd - vh)) / dist));
+        }
 
         const startItem = navItems[startIndex];
         const endItem = navItems[endIndex];
@@ -319,10 +395,14 @@ document.addEventListener('DOMContentLoaded', () => {
         indicator.style.width = `${currentWidth}px`;
         indicator.style.transform = `translateX(${currentLeft}px)`;
 
-        navLinks.forEach(nav => nav.classList.remove('active'));
-        if (t < 0.5) startItem.link.classList.add('active');
-        else endItem.link.classList.add('active');
+        // Handle active class highlighting
+        navItems.forEach((item, index) => {
+            const isActive = (index === startIndex && t < 0.5) || (index === endIndex && t >= 0.5);
+            item.link.classList.toggle('active', isActive);
+        });
     };
+
+
 
     // Unified scroll execution engine
     const runUnifiedScrollUpdates = () => {
@@ -1064,7 +1144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('mouseover', (e) => {
         // Find if target is an interactive element (excluding portfolio items for separate 'View' behavior)
-        const snapEl = e.target.closest('a, button, .scroll-btn, .nav-link, .theme-toggle, .contact-link-wrap, .close-portfolio, .close-lightbox');
+        const snapEl = e.target.closest('a, button, .scroll-btn, .nav-link, .theme-toggle, .contact-link-wrap, .close-portfolio, .close-lightbox, .timeline-bar');
         const viewEl = e.target.closest('.portfolio-item');
 
         if (snapEl) {
@@ -1092,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('mouseout', (e) => {
-        const snapEl = e.target.closest('a, button, .project-card, .scroll-btn, .nav-link, .theme-toggle, .contact-link-wrap, .close-portfolio, .close-lightbox');
+        const snapEl = e.target.closest('a, button, .project-card, .scroll-btn, .nav-link, .theme-toggle, .contact-link-wrap, .close-portfolio, .close-lightbox, .timeline-bar');
         const viewEl = e.target.closest('.portfolio-item');
 
         if (snapEl) {
@@ -1129,20 +1209,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (snapTarget && window.innerWidth > 1024) {
             const rect = snapTarget.getBoundingClientRect();
-            // Magnetic pull: move target slightly towards the center of the element
-            // but keep it responsive to mouse position within the bounds
-            const padding = 12; // Standard padding for all buttons
+            let padding = 12; // Standard padding for all buttons
 
-            targetX = rect.left + rect.width / 2;
-            targetY = rect.top + rect.height / 2;
-            
-            // Standardize snap size for fixed buttons (theme toggle, close buttons) to avoid parallax scaling artifacts
-            if (snapTarget.classList.contains('theme-toggle') || snapTarget.classList.contains('close-portfolio')) {
-                targetW = 50 + padding * 2;
-                targetH = 50 + padding * 2;
-            } else {
+            // Specialized interaction for timeline bars to prevent the 'stuck' feeling
+            if (snapTarget.classList.contains('timeline-bar')) {
+                // No horizontal pull - let the mouse move freely along the bar's width
+                targetX = mouseX; 
+                // Only snap to the vertical center of the bar
+                targetY = rect.top + rect.height / 2;
+                padding = 8; // Tighter padding for bars
+                
                 targetW = rect.width + padding * 2;
                 targetH = rect.height + padding * 2;
+            } else {
+                // Magnetic pull for standard icons/buttons: move target towards the center
+                targetX = rect.left + rect.width / 2;
+                targetY = rect.top + rect.height / 2;
+
+                // Standardize snap size for fixed buttons
+                if (snapTarget.classList.contains('theme-toggle') || snapTarget.classList.contains('close-portfolio')) {
+                    targetW = 50 + padding * 2;
+                    targetH = 50 + padding * 2;
+                } else {
+                    targetW = rect.width + padding * 2;
+                    targetH = rect.height + padding * 2;
+                }
             }
 
             // Determine border radius based on element shape, with a fallback for sharp elements
