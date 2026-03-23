@@ -1683,8 +1683,7 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
   .project-card:hover .card-image-placeholder,
   .portfolio-item:hover img,
   .filter-btn:hover,
-  .nav-link:hover,
-  .theme-toggle:hover {
+  .nav-link:hover {
     transform: none !important;
   }
 }
