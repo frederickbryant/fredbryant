@@ -956,55 +956,62 @@ body.dark-mode .project-count {
 }
 
 /* Entrance Animation States */
-.accordion-container.entrance-hidden .project-card {
-  opacity: 0;
-  flex: 1; /* Keep flex so they have layout size, but hide them behind center */
-  pointer-events: none;
-  transition: transform 1.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
+/* Desktop Entrance Orchestration */
+@media screen and (min-width: 1025px) {
+  .accordion-container.entrance-hidden .project-card {
+    opacity: 0;
+    flex: 1;
+    pointer-events: none;
+    transition: transform 1.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
+  }
+
+  .accordion-container.entrance-hidden .project-card:nth-child(1),
+  .accordion-container.entrance-hidden .project-card:nth-child(2) {
+    transform: translateX(200%);
+  }
+
+  .accordion-container.entrance-hidden .project-card:nth-child(4),
+  .accordion-container.entrance-hidden .project-card:nth-child(5) {
+    transform: translateX(-200%);
+  }
+
+  .accordion-container.entrance-hidden .project-card:nth-child(3) {
+    opacity: 0;
+    flex: 0 0 0;
+    min-width: 0;
+    transform: scale(0.8);
+    z-index: 55;
+  }
+
+  .accordion-container.animate-pop-middle .project-card:nth-child(3) {
+    opacity: 1;
+    flex: 6;
+    transform: scale(1);
+    z-index: 60;
+    transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), flex 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
+  }
 }
 
-/* Side cards tucked behind 3rd card */
-.accordion-container.entrance-hidden .project-card:nth-child(1),
-.accordion-container.entrance-hidden .project-card:nth-child(2) {
-  transform: translateX(200%); /* Pull towards center */
+/* Mobile/Tablet Entrance Orchestration */
+@media screen and (max-width: 1024px) {
+  .accordion-container.entrance-hidden .project-card {
+    opacity: 0;
+    transform: translateY(100px);
+    transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1s ease;
+  }
+
+  /* Pop the first card first on mobile */
+  .accordion-container.animate-pop-middle .project-card:nth-child(1) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .accordion-container.animate-slide-out .project-card {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.accordion-container.entrance-hidden .project-card:nth-child(4),
-.accordion-container.entrance-hidden .project-card:nth-child(5) {
-  transform: translateX(-200%); /* Pull towards center */
-}
-
-/* Hide counter during entrance */
-.accordion-container.entrance-hidden+.project-count.centered-bottom {
-  opacity: 0;
-  transition: opacity 0.8s ease;
-}
-
-.accordion-container.animate-slide-out+.project-count.centered-bottom {
-  opacity: 1;
-}
-
-/* Middle card starts as a minimized point in the center */
-.accordion-container.entrance-hidden .project-card:nth-child(3) {
-  opacity: 0; /* Clear start */
-  flex: 0 0 0; /* Zero width to begin */
-  min-width: 0;
-  transform: scale(0.8); /* Slightly smaller/zoomed-out start */
-  border: none;
-  z-index: 55; /* Persistent top priority */
-}
-
-/* Phase 1: Center card "pops" up in one unified motion */
-.accordion-container.animate-pop-middle .project-card:nth-child(3) {
-  opacity: 1;
-  flex: 6; /* Expands width to its natural active state */
-  transform: scale(1); /* Expands height/scale simultaneously */
-  z-index: 60; 
-  /* Single transition duration and easing for one continuous motion */
-  transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), 
-              flex 1.2s cubic-bezier(0.19, 1, 0.22, 1),
-              opacity 1.2s ease;
-}
 
 /* Phase 2: Others fan out slowly from behind the middle card */
 .accordion-container.animate-slide-out .project-card {
@@ -1713,4 +1720,44 @@ body.loading-active .cursor-circle {
   visibility: hidden !important;
 }
 
+@media screen and (max-width: 1024px) {
+  #projects {
+    height: auto;
+    min-height: 100vh;
+    scroll-snap-align: none; /* Let children handle the snapping */
+    overflow: visible;
+    /* Remove any overlapping/parallax constraints that interfere with long scroll */
+    z-index: 10; 
+  }
 
+  .accordion-container {
+    flex-direction: column;
+    height: auto;
+    gap: 0;
+  }
+
+  .project-card {
+    height: 100vh;
+    width: 100%;
+    flex: 0 0 100vh !important;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    border: none;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .project-card.active {
+    flex: 0 0 100vh !important; /* Forces cards to stay full screen instead of accordion logic */
+  }
+
+  /* Reveal card content immediately on mobile scroll */
+  .card-content {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+
+  .card-image-placeholder {
+    transform: scale(1.02) !important; /* Static subtle zoom */
+  }
+}

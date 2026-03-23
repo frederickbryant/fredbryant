@@ -243,6 +243,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const sectionMiddle = navItemsLocal[index] ? navItemsLocal[index].offsetTop : (index * vh);
             
+            // Skip parallax for Section 2 on Mobile as it is now a vertical snapped list
+            if (window.innerWidth <= 1024 && index === 1) {
+                container.style.transform = '';
+                container.style.opacity = '1';
+                return;
+            }
+            
             // Normalize scroll distance based on a fixed viewport pivot (1000px) 
             // instead of the raw variable 'vh' to keep the physical pixel-per-scroll 
             // speed identical across all devices.
