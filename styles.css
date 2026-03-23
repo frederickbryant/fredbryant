@@ -956,7 +956,7 @@ body.dark-mode .project-count {
 }
 
 /* Entrance Animation States */
-/* Desktop Entrance Orchestration */
+/* Desktop Entrance Orchestration: Focused on Photography (Card 1) */
 @media screen and (min-width: 1025px) {
   .accordion-container.entrance-hidden .project-card {
     opacity: 0;
@@ -965,17 +965,13 @@ body.dark-mode .project-count {
     transition: transform 1.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
   }
 
-  .accordion-container.entrance-hidden .project-card:nth-child(1),
-  .accordion-container.entrance-hidden .project-card:nth-child(2) {
-    transform: translateX(200%);
+  /* All side cards tucked behind the 1st card */
+  .accordion-container.entrance-hidden .project-card:not(:first-child) {
+    transform: translateX(-100%); /* Stacked behind card 1 from right side? No, pull in towards left */
+    z-index: 10;
   }
 
-  .accordion-container.entrance-hidden .project-card:nth-child(4),
-  .accordion-container.entrance-hidden .project-card:nth-child(5) {
-    transform: translateX(-200%);
-  }
-
-  .accordion-container.entrance-hidden .project-card:nth-child(3) {
+  .accordion-container.entrance-hidden .project-card:first-child {
     opacity: 0;
     flex: 0 0 0;
     min-width: 0;
@@ -983,7 +979,8 @@ body.dark-mode .project-count {
     z-index: 55;
   }
 
-  .accordion-container.animate-pop-middle .project-card:nth-child(3) {
+  /* Phase 1: Photography (Child 1) "pops" first */
+  .accordion-container.animate-pop-middle .project-card:first-child {
     opacity: 1;
     flex: 6;
     transform: scale(1);
@@ -991,6 +988,7 @@ body.dark-mode .project-count {
     transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), flex 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
   }
 }
+
 
 /* Mobile/Tablet Entrance Orchestration */
 @media screen and (max-width: 1024px) {
@@ -1023,9 +1021,9 @@ body.dark-mode .project-count {
   transition: flex 1.8s cubic-bezier(0.19, 1, 0.22, 1), transform 1.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease;
 }
 
-.accordion-container.animate-slide-out .project-card:nth-child(3) {
-  flex: 6; /* Final active focal width */
-  z-index: 55; /* Keep it on top until the fanning out is complete */
+.accordion-container.animate-slide-out .project-card:first-child {
+  flex: 6;
+  z-index: 55;
 }
 
 .project-card {
@@ -1721,43 +1719,47 @@ body.loading-active .cursor-circle {
 }
 
 @media screen and (max-width: 1024px) {
-  #projects {
-    height: auto;
+  #other-projects {
+    height: auto !important;
     min-height: 100vh;
-    scroll-snap-align: none; /* Let children handle the snapping */
-    overflow: visible;
-    /* Remove any overlapping/parallax constraints that interfere with long scroll */
-    z-index: 10; 
+    scroll-snap-align: none; 
+    display: block !important;
+    overflow: visible !important;
   }
 
   .accordion-container {
-    flex-direction: column;
-    height: auto;
-    gap: 0;
+    display: block !important;
+    height: auto !important;
   }
 
   .project-card {
-    height: 100vh;
-    width: 100%;
-    flex: 0 0 100vh !important;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
+    display: block !important;
+    height: 100vh !important;
+    width: 100% !important;
+    flex: none !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
+    position: relative;
     border: none;
     border-bottom: 1px solid var(--glass-border);
   }
 
-  .project-card.active {
-    flex: 0 0 100vh !important; /* Forces cards to stay full screen instead of accordion logic */
+  .project-card.active, 
+  .project-card {
+    flex: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
-  /* Reveal card content immediately on mobile scroll */
+  /* Force card content reveal on mobile scroll immediately */
   .card-content {
     opacity: 1 !important;
     transform: translateY(0) !important;
     pointer-events: auto !important;
+    padding: 2rem !important; /* Tighter mobile padding */
   }
 
   .card-image-placeholder {
-    transform: scale(1.02) !important; /* Static subtle zoom */
+    transform: scale(1) !important;
   }
 }
