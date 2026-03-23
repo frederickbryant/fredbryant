@@ -491,10 +491,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetSection = document.querySelector(targetId);
 
             if (targetSection && scrollContainer) {
+                // Specialized fix for display:contents containers (Projects)
+                let scrollTarget = targetSection;
+                if (targetId === '#other-projects') {
+                    const firstCard = targetSection.querySelector('.project-card');
+                    if (firstCard) scrollTarget = firstCard;
+                }
+
                 // Temporarily disable scroll snapping for a smoother animated transition
                 scrollContainer.style.scrollSnapType = 'none';
 
-                targetSection.scrollIntoView({ behavior: 'smooth' });
+                // Calculate exact top offset to ensure it reaches the child if parent is display:contents
+                const targetOffset = scrollTarget.offsetTop;
+                scrollContainer.scrollTo({
+                    top: targetOffset,
+                    behavior: 'smooth'
+                });
 
                 // Re-enable snapping roughly after scroll finishes
                 setTimeout(() => {
