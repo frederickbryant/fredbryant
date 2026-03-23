@@ -300,8 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const aboutSection = navItems[2];
 
         // Track the bottom of the projects stack (last card)
-        const projectCards = projectsSection.section.querySelectorAll('.project-card');
-        const projectsEnd = projectsSection.offsetTop + (projectCards.length > 0 ? projectCards.length * vh : 0);
+        const projectCards = Array.from(projectsSection.section.querySelectorAll('.project-card'));
+        const lastCard = projectCards[projectCards.length - 1];
+        const projectsEnd = aboutSection ? aboutSection.offsetTop : (projectsSection.offsetTop + projectCards.length * vh);
+        const lastCardTop = lastCard ? lastCard.offsetTop : (projectsEnd - vh);
 
         // Counter visibility logic and active zone tracking
         // We use a small offset (+/-10px) to prevent flicker on Home page
@@ -310,7 +312,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('is-projects-active');
             
             // Update counter text and timeline bars based on proximity
-            const rawProgress = (scrollTop - projectsSection.offsetTop) / vh;
+            // Use actual card step for robust calculation on mobile
+            const cardStep = (projectCards.length > 1) ? (projectCards[1].offsetTop - projectCards[0].offsetTop) : vh;
+            const rawProgress = (scrollTop - projectsSection.offsetTop) / cardStep;
             const currentCardIndex = Math.min(projectCards.length, Math.max(1, Math.round(rawProgress) + 1));
             
             const countCurrentDisplay = document.querySelector('.count-current');
@@ -366,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dist = projectsSection.offsetTop - homeSection.offsetTop;
             t = Math.max(0, Math.min(1, (scrollTop - homeSection.offsetTop) / dist));
         } 
-        else if (scrollTop < projectsEnd - vh) {
+        else if (scrollTop < lastCardTop) {
             // Zone 2: Inside Projects Stack (Locked to PROJECTS)
             startIndex = 1;
             endIndex = 1;
@@ -376,8 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Zone 3: Projects to About (Interpolated Sliding)
             startIndex = 1;
             endIndex = 2;
-            const dist = aboutSection.offsetTop - (projectsEnd - vh);
-            t = Math.max(0, Math.min(1, (scrollTop - (projectsEnd - vh)) / dist));
+            const dist = aboutSection.offsetTop - lastCardTop;
+            t = Math.max(0, Math.min(1, (scrollTop - lastCardTop) / dist));
         }
 
         const startItem = navItems[startIndex];
