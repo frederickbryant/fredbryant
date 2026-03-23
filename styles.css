@@ -1720,23 +1720,29 @@ body.loading-active .cursor-circle {
 
 @media screen and (max-width: 1024px) {
   #other-projects {
-    height: auto !important;
-    min-height: 100vh;
-    scroll-snap-align: none; 
+    height: 100vh !important;
+    scroll-snap-align: start; /* Now a first-class snap point for main scroll */
+    overflow-y: auto !important; /* Enable internal card scrolling */
+    scroll-snap-type: y mandatory !important;
     display: block !important;
-    overflow: visible !important;
+    -webkit-overflow-scrolling: touch;
+    z-index: 10; 
   }
 
   .accordion-container {
     display: block !important;
     height: auto !important;
+    width: 100% !important;
   }
 
+  /* Each card inside Section 2 snaps perfectly within the section container */
   .project-card {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
     height: 100vh !important;
     width: 100% !important;
-    flex: none !important;
     scroll-snap-align: start !important;
     scroll-snap-stop: always !important;
     position: relative;
