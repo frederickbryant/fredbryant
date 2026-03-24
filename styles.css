@@ -156,10 +156,9 @@ body.loading-active .navbar {
   width: 100vw;
   height: 100vh;
   z-index: 10000;
-  background-color: transparent; /* See the topography through the loader immediately */
-  backdrop-filter: blur(10px); /* Initial soft blur of the landing page */
-  -webkit-backdrop-filter: blur(10px);
+  background-color: transparent; /* Allows high-speed background pattern to show through */
   display: flex;
+
   align-items: center;
   justify-content: center;
   overflow: hidden;
