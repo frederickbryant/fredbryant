@@ -1207,8 +1207,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 targetY += dy * 0.15;
             }
 
-            // Apply magnetic translation to content
-            if (!snapTarget.closest('.navbar')) {
+            // Apply magnetic translation to content ONLY for massive items
+            if (snapTarget.classList.contains('project-card') || snapTarget.classList.contains('portfolio-item')) {
                 const contentPull = 0.35; // Increased pull for better visibility
                 Array.from(snapTarget.children).forEach(child => {
                     // Don't move the glass background of project cards

@@ -603,11 +603,6 @@ body.dark-mode .cursor-circle.snapped {
   align-items: center;
   justify-content: center;
   padding: 0 0.5rem;
-  transition: opacity 0.3s ease;
-}
-
-.nav-logo:hover {
-  opacity: 0.7;
 }
 
 .nav-logo img {
@@ -1119,7 +1114,10 @@ body.is-projects-active .project-count {
   font-weight: 500;
   z-index: 1;
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -1131,6 +1129,16 @@ body.is-projects-active .project-count {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   transition: var(--transition);
+}
+
+.project-title-link::after {
+  content: attr(data-text);
+  height: 0;
+  visibility: hidden;
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+  letter-spacing: 0.35em;
 }
 
 body.dark-mode .project-title-link {
@@ -1145,7 +1153,7 @@ body.dark-mode .project-title-link {
   transform: translateY(-2px) !important;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
   opacity: 1 !important;
-  letter-spacing: 0.15em !important;
+  letter-spacing: 0.35em !important;
 }
 
 .card-details {
