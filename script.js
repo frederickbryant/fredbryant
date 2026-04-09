@@ -1178,6 +1178,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (snapTarget.classList.contains('theme-toggle') || snapTarget.classList.contains('close-portfolio')) {
                     targetW = 50 + padding * 2;
                     targetH = 50 + padding * 2;
+                } else if (snapTarget.classList.contains('nav-link')) {
+                    targetW = rect.width;
+                    targetH = rect.height;
                 } else {
                     targetW = rect.width + padding * 2;
                     targetH = rect.height + padding * 2;
@@ -1198,18 +1201,23 @@ document.addEventListener('DOMContentLoaded', () => {
             // to still feel somewhat stuck but not completely centered if far away
             const dx = mouseX - targetX;
             const dy = mouseY - targetY;
-            targetX += dx * 0.15;
-            targetY += dy * 0.15;
+            
+            if (snapTarget.classList.contains('project-card') || snapTarget.classList.contains('portfolio-item')) {
+                targetX += dx * 0.15;
+                targetY += dy * 0.15;
+            }
 
             // Apply magnetic translation to content
-            const contentPull = 0.35; // Increased pull for better visibility
-            Array.from(snapTarget.children).forEach(child => {
-                // Don't move the glass background of project cards
-                if (!child.classList.contains('card-glass')) {
-                    child.style.transform = `translate(${dx * contentPull}px, ${dy * contentPull}px)`;
-                    child.style.transition = 'none';
-                }
-            });
+            if (!snapTarget.closest('.navbar')) {
+                const contentPull = 0.35; // Increased pull for better visibility
+                Array.from(snapTarget.children).forEach(child => {
+                    // Don't move the glass background of project cards
+                    if (!child.classList.contains('card-glass')) {
+                        child.style.transform = `translate(${dx * contentPull}px, ${dy * contentPull}px)`;
+                        child.style.transition = 'none';
+                    }
+                });
+            }
         }
 
         // Calculate distance for the circle move
