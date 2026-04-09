@@ -662,9 +662,25 @@ body.dark-mode .cursor-circle.snapped {
 
 /* Hover color removed in favor of snapping cursor */
 
+@keyframes nav-pulse-stretch {
+  0% {
+    letter-spacing: 0.1em;
+  }
+  50% {
+    letter-spacing: 0.35em;
+  }
+  100% {
+    letter-spacing: 0.1em;
+  }
+}
+
 .nav-link.active {
   color: #fff;
   /* Keep the active text white since the pill is red */
+}
+
+.nav-link.active-pulse {
+  animation: nav-pulse-stretch 0.8s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 /* Typography Utilities */

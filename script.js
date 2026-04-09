@@ -320,10 +320,27 @@ document.addEventListener('DOMContentLoaded', () => {
         indicator.style.width = `${currentWidth}px`;
         indicator.style.transform = `translateX(${currentLeft}px)`;
 
-        // Handle active class highlighting
+        // Handle active class highlighting with a one-time pulse animation
         navItems.forEach((item, index) => {
             const isActive = (index === startIndex && t < 0.5) || (index === endIndex && t >= 0.5);
-            item.link.classList.toggle('active', isActive);
+            
+            if (isActive && !item.link.classList.contains('active')) {
+                // Link is becoming active: Add active state
+                item.link.classList.add('active');
+                
+                // ONLY trigger the cinematic pulse expansion if the user is NOT currently hovering.
+                // If they are hovering (like when they click), it's already expanded, so we skip the jump.
+                if (!item.link.matches(':hover')) {
+                    item.link.classList.add('active-pulse');
+                    
+                    item.link.addEventListener('animationend', () => {
+                        item.link.classList.remove('active-pulse');
+                    }, { once: true });
+                }
+            } else if (!isActive) {
+                item.link.classList.remove('active');
+                item.link.classList.remove('active-pulse');
+            }
         });
     };
 
