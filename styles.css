@@ -1793,7 +1793,7 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
   /* --- Navbar Sizing Fixes --- */
   .navbar {
     width: auto !important;
-    max-width: calc(100vw - 2.5rem) !important; /* Ensure breathing room on each side */
+    max-width: calc(100vw - 1.25rem) !important; /* Slightly smaller side padding per user request */
     gap: 0.25rem !important;
     padding: 0.4rem !important;
     top: 1.25rem !important; /* Move slightly higher on mobile for more space */
