@@ -1789,6 +1789,33 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
   .project-card.active .item-overlay {
     opacity: 1 !important;
   }
+
+  /* --- Navbar Sizing Fixes --- */
+  .navbar {
+    width: auto !important;
+    max-width: calc(100vw - 2.5rem) !important; /* Ensure breathing room on each side */
+    gap: 0.25rem !important;
+    padding: 0.4rem !important;
+    top: 1.25rem !important; /* Move slightly higher on mobile for more space */
+  }
+
+  .nav-link {
+    padding: 0.6rem 0.85rem !important; /* Narrower links */
+    font-size: 0.725rem !important; /* Slightly smaller text for fit */
+    letter-spacing: 0.05em !important;
+  }
+
+  .nav-link::after {
+    display: none !important; /* Prevent hidden text from affecting width */
+  }
+
+  .nav-logo {
+    padding: 0 0.35rem !important;
+  }
+
+  .nav-logo img {
+    height: 18px !important;
+  }
 }
 
 /* Hide custom cursor while loading screen is active */
