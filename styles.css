@@ -1701,8 +1701,9 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
 .contact-link-wrap .round-btn {
   pointer-events: auto !important;
 }
-/* Disable custom cursor on Mobile and Tablet */
+/* --- Mobile & Tablet Overrides (Touch UX Optimizations) --- */
 @media screen and (max-width: 1024px) {
+  /* Reset cursor behavior */
   * {
     cursor: auto !important;
   }
@@ -1716,28 +1717,77 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
   a, button, [role="button"], .portfolio-item, .nav-link, .theme-toggle, .scroll-btn, .round-btn {
     cursor: pointer !important;
   }
-}
 
-@media screen and (max-width: 1024px) {
-  /* Disable transform hover effects that can feel like "wiggling" or get stuck on touch */
+  /* Disable Transform & Layout Shift Animations (The "Wiggle" effect) */
   .project-card:hover .card-image-placeholder,
   .portfolio-item:hover img,
   .filter-btn:hover,
-  .nav-link:hover {
+  .nav-link:hover,
+  .project-title-link:hover,
+  .contact-link-wrap:hover .fancy-link,
+  .close-portfolio:hover,
+  .close-lightbox:hover,
+  .lightbox-nav:hover {
     transform: none !important;
+    box-shadow: none !important;
   }
-}
 
-@media screen and (max-width: 1024px) {
-  /* Prevent the red "stuck" state on theme-toggle after tap */
+  /* Disable Text Spacing Jump Animations */
+  .nav-link:hover,
+  .fancy-link:hover,
+  .project-title-link:hover,
+  .contact-link-wrap:hover .fancy-link {
+    letter-spacing: 0.1em !important; /* Force original spacing */
+  }
+
+  .project-title-link:hover {
+     letter-spacing: 0.1em !important;
+  }
+
+  .nav-link.active-pulse {
+    animation: none !important; /* Disable active nav indicator pulse */
+    letter-spacing: 0.1em !important;
+  }
+
+  /* Disable Underline Retraction */
+  .fancy-link:hover::after,
+  .contact-link-wrap:hover .fancy-link::after {
+    transform: scaleX(1) !important;
+  }
+
+  /* Stabilize Interactive Colors (Prevent sticky hover states) */
   .theme-toggle:hover {
     background: var(--glass-bg) !important;
     border-color: var(--glass-border) !important;
-    color: inherit !important;
+    color: var(--text-main) !important;
   }
   
   body.dark-mode .theme-toggle:hover {
     color: #f9f9f9 !important;
+  }
+
+  .filter-btn:hover {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+  }
+
+  .social-link:hover {
+    opacity: 0.7 !important; /* Keep original opacity */
+  }
+
+  .inline-arrow-link:hover {
+    opacity: 1 !important;
+  }
+
+  /* Disable Project Card Background Layer Fade */
+  .project-card:hover .item-overlay {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  
+  .project-card.active .item-overlay {
+    opacity: 1 !important;
   }
 }
 
