@@ -34,16 +34,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Apple Time Machine Loader ---
+    // --- Initial Mask Loader ---
     const loader = document.getElementById('time-machine-loader');
     if (loader) {
-        const tmStack = loader.querySelector('.tm-stack');
         // Pre-check dark mode before theme code runs
         const isDark = document.body.classList.contains('dark-mode') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         
-        // Loader now uses the background pattern directly with high speed for a clean, branded entry
-        loader.style.backgroundColor = 'transparent'; 
-
+        // Smoothly fade out the solid mask to reveal the high-speed background engine
+        // Wait 400ms to allow the user to register the solid mask before starting the 1.2s fade out
+        setTimeout(() => {
+            loader.style.opacity = '0';
+        }, 400);
         
         // Track time manually to control speed
         let bgTimeVal = 0;
@@ -76,8 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
                  if (navbar) navbar.classList.add('navbar-visible');
                  if (themeToggle) themeToggle.classList.add('toggle-visible');
 
-                 loader.style.opacity = '0';
-                 setTimeout(() => loader.remove(), 1000);
+                 // Loader is already visually transparent, just remove from DOM
+                 setTimeout(() => loader.remove(), 1500);
              }, 800); 
         }, 1500); 
 
@@ -142,27 +143,100 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Continuous Nav Indicator Sync
+    // --- Cached Layout State ---
     const indicator = document.querySelector('.nav-indicator');
+    let cachedSections = [];
+    let cachedNavItems = [];
+    let cachedTimelineBars = [];
+    let countCurrentDisplay = null;
+    let themeBtnLocal = null;
+
+    function cacheLayoutState() {
+        const vh = window.innerHeight;
+        cachedTimelineBars = Array.from(document.querySelectorAll('.timeline-bar'));
+        countCurrentDisplay = document.querySelector('.count-current');
+        themeBtnLocal = document.querySelector('.theme-toggle');
+
+        cachedSections = Array.from(document.querySelectorAll('.section')).map(section => {
+            return {
+                element: section,
+                container: section.querySelector('.content-container')
+            };
+        });
+
+        cachedNavItems = Array.from(navLinks).map(link => {
+            const targetId = link.getAttribute('href');
+            let targetSection = null;
+            if (targetId && targetId !== '#') targetSection = document.querySelector(targetId);
+            
+            // Critical fix for flattened layouts (display: contents)
+            let offset = targetSection ? targetSection.offsetTop : 0;
+            if (targetSection && targetSection.classList.contains('projects') && offset === 0) {
+                const firstCard = targetSection.querySelector('.project-card');
+                if (firstCard) offset = firstCard.offsetTop;
+            }
+
+            // Cards specific logic
+            let cards = [];
+            if (targetId === '#other-projects' && targetSection) {
+                cards = Array.from(targetSection.querySelectorAll('.project-card'));
+            }
+
+            const parentRect = link.parentElement ? link.parentElement.getBoundingClientRect() : {left: 0};
+            const linkRect = link.getBoundingClientRect();
+            
+            return {
+                link: link,
+                section: targetSection,
+                offsetTop: offset,
+                cards: cards,
+                parentLeft: parentRect.left,
+                linkLeft: linkRect.left,
+                linkWidth: linkRect.width
+            };
+        }).filter(item => item.section);
+
+        // Precompute stack heights and intervals for projects if it exists
+        const projectsItem = cachedNavItems[1];
+        const aboutItem = cachedNavItems[2];
+        if (projectsItem && projectsItem.cards && projectsItem.cards.length > 0) {
+            const lastCard = projectsItem.cards[projectsItem.cards.length - 1];
+            projectsItem.projectsEnd = aboutItem ? aboutItem.offsetTop : (projectsItem.offsetTop + projectsItem.cards.length * vh);
+            projectsItem.lastCardTop = lastCard ? lastCard.offsetTop : (projectsItem.projectsEnd - vh);
+            projectsItem.cardStep = (projectsItem.cards.length > 1) ? (projectsItem.cards[1].offsetTop - projectsItem.cards[0].offsetTop) : vh;
+        }
+        
+        // Ensure buttons sync listeners using closures bound to the current cached cards
+        cachedTimelineBars.forEach((bar, i) => {
+            if (!bar.hasListener && projectsItem && projectsItem.cards[i]) {
+                bar.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const card = projectsItem.cards[i];
+                    if (card) {
+                        scrollContainer.scrollTo({
+                            top: card.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+                bar.hasListener = true;
+            }
+        });
+    }
+
+    // Call it initially and re-cache if window size changes
+    cacheLayoutState();
+    window.addEventListener('resize', cacheLayoutState);
 
     const updateSectionParallax = () => {
         const scrollTop = scrollContainer.scrollTop;
         const vh = window.innerHeight;
-        const sections = document.querySelectorAll('.section');
         
-        // Map nav links to their target sections originally (reusing the logic for parallax positioning)
-        const navItemsLocal = Array.from(navLinks).map(link => {
-            const targetId = link.getAttribute('href');
-            let targetSection = null;
-            if (targetId && targetId !== '#') targetSection = document.querySelector(targetId);
-            return { offsetTop: targetSection ? targetSection.offsetTop : 0 };
-        });
-
-        sections.forEach((section, index) => {
-            const container = section.querySelector('.content-container');
+        cachedSections.forEach((sectionConf, index) => {
+            const container = sectionConf.container;
             if (!container) return;
 
-            const sectionMiddle = navItemsLocal[index] ? navItemsLocal[index].offsetTop : (index * vh);
+            const sectionMiddle = cachedNavItems[index] ? cachedNavItems[index].offsetTop : (index * vh);
             
             // Skip parallax for Section 2 (Projects) as it is now a vertical snapped stack for all devices
             if (index === 1) {
@@ -171,108 +245,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Normalize scroll distance based on a fixed viewport pivot (1000px) 
-            // instead of the raw variable 'vh' to keep the physical pixel-per-scroll 
-            // speed identical across all devices.
+            // Normalize scroll distance based on a fixed viewport pivot (1000px)
             const normalizationPivot = 1000;
             const progress = Math.max(-1, Math.min(1, (scrollTop - sectionMiddle) / normalizationPivot));
 
-            // Applied directly as inline styles for maximum 1-to-1 responsiveness
-            // We use the actual vh here for the movement intensity so it stays proportionally correct to the screen.
             const translateY = progress * (vh * 0.20); 
             const scale = 1 - Math.abs(progress) * 0.05; 
             const opacity = 1 - Math.abs(progress) * 1.5; 
 
             container.style.transform = `translateY(${translateY}px) scale(${scale})`;
             container.style.opacity = Math.max(0, opacity);
-            // Dynamic blur removed for cleaner high-definition look
-
         });
     };
 
     const updateSmoothIndicator = () => {
-        if (!indicator) return;
-
-        const navItems = Array.from(navLinks).map(link => {
-            const targetId = link.getAttribute('href');
-            let targetSection = null;
-            if (targetId && targetId !== '#') targetSection = document.querySelector(targetId);
-            
-            // Critical fix for flattened layouts (display: contents)
-            // If the section itself has no offset, pick its first visual child (the cards)
-            let offset = targetSection ? targetSection.offsetTop : 0;
-            if (targetSection && targetSection.classList.contains('projects') && offset === 0) {
-                const firstCard = targetSection.querySelector('.project-card');
-                if (firstCard) offset = firstCard.offsetTop;
-            }
-
-            return {
-                link: link,
-                section: targetSection,
-                offsetTop: offset
-            };
-        }).filter(item => item.section);
+        if (!indicator || cachedNavItems.length < 3) return;
 
         const scrollTop = scrollContainer.scrollTop;
         const vh = window.innerHeight;
 
-        const homeSection = navItems[0];
-        const projectsSection = navItems[1];
-        const aboutSection = navItems[2];
+        const homeSection = cachedNavItems[0];
+        const projectsSection = cachedNavItems[1];
+        const aboutSection = cachedNavItems[2];
 
-        // Track the bottom of the projects stack (last card)
-        const projectCards = Array.from(projectsSection.section.querySelectorAll('.project-card'));
-        const lastCard = projectCards[projectCards.length - 1];
-        const projectsEnd = aboutSection ? aboutSection.offsetTop : (projectsSection.offsetTop + projectCards.length * vh);
-        const lastCardTop = lastCard ? lastCard.offsetTop : (projectsEnd - vh);
+        const cards = projectsSection.cards;
+        const projectsEnd = projectsSection.projectsEnd;
+        const lastCardTop = projectsSection.lastCardTop;
 
         // Counter visibility logic and active zone tracking
-        // We use a small offset (+/-10px) to prevent flicker on Home page
         if (scrollTop >= projectsSection.offsetTop - 10 && scrollTop < projectsEnd - vh / 2) {
             projectsSection.section.classList.add('is-active-zone');
             document.body.classList.add('is-projects-active');
             
-            // Update counter text and timeline bars based on proximity
-            // Use actual card step for robust calculation on mobile
-            const cardStep = (projectCards.length > 1) ? (projectCards[1].offsetTop - projectCards[0].offsetTop) : vh;
-            const rawProgress = (scrollTop - projectsSection.offsetTop) / cardStep;
-            const currentCardIndex = Math.min(projectCards.length, Math.max(1, Math.round(rawProgress) + 1));
+            const rawProgress = (scrollTop - projectsSection.offsetTop) / projectsSection.cardStep;
+            const currentCardIndex = Math.min(cards.length, Math.max(1, Math.round(rawProgress) + 1));
             
-            const countCurrentDisplay = document.querySelector('.count-current');
             if (countCurrentDisplay) {
                 countCurrentDisplay.textContent = String(currentCardIndex).padStart(2, '0');
             }
 
-            // Timeline bar proximity scaling - switching to 'width' for natural flex-pushing behavior
-            const bars = document.querySelectorAll('.timeline-bar');
-            bars.forEach((bar, i) => {
+            // Timeline bar proximity scaling
+            cachedTimelineBars.forEach((bar, i) => {
                 const distance = Math.abs(rawProgress - i);
                 const proximity = Math.max(0, 1 - distance * 0.8);
                 
-                // Active status based on nearest index
                 bar.classList.toggle('active', i === currentCardIndex - 1);
                 
-                // Real-time smooth width and opacity boost
                 const baseWidth = 24;
-                const targetWidth = baseWidth + (proximity * 48); // Expands up to +48px (total 72px)
-                const opacity = 0.3 + proximity * 0.7; // Brighter focus
+                const targetWidth = baseWidth + (proximity * 48);
+                const opacity = 0.3 + proximity * 0.7;
                 
                 bar.style.width = `${Math.round(targetWidth)}px`;
                 bar.style.opacity = opacity;
-
-                // Add click listener to navigate to the project card
-                if (!bar.hasListener) {
-                    bar.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (projectCards[i]) {
-                            scrollContainer.scrollTo({
-                                top: projectCards[i].offsetTop,
-                                behavior: 'smooth'
-                            });
-                        }
-                    });
-                    bar.hasListener = true;
-                }
             });
         } else {
             projectsSection.section.classList.remove('is-active-zone');
@@ -285,54 +309,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Sophisticated 3-Zone Mapping for Smooth Sliding ---
         if (scrollTop < projectsSection.offsetTop) {
-            // Zone 1: Home to Projects (Interpolated Sliding)
             startIndex = 0;
             endIndex = 1;
             const dist = projectsSection.offsetTop - homeSection.offsetTop;
-            t = Math.max(0, Math.min(1, (scrollTop - homeSection.offsetTop) / dist));
-        } 
-        else if (scrollTop < lastCardTop) {
-            // Zone 2: Inside Projects Stack (Locked to PROJECTS)
+            const scrollDist = Math.max(0, scrollTop - homeSection.offsetTop);
+            t = dist > 0 ? Math.max(0, Math.min(1, scrollDist / dist)) : 0;
+        } else if (scrollTop < lastCardTop) {
             startIndex = 1;
             endIndex = 1;
             t = 0;
-        }
-        else {
-            // Zone 3: Projects to About (Interpolated Sliding)
+        } else {
             startIndex = 1;
             endIndex = 2;
             const dist = aboutSection.offsetTop - lastCardTop;
-            t = Math.max(0, Math.min(1, (scrollTop - lastCardTop) / dist));
+            const scrollDist = Math.max(0, scrollTop - lastCardTop);
+            t = dist > 0 ? Math.max(0, Math.min(1, scrollDist / dist)) : 0;
         }
 
-        const startItem = navItems[startIndex];
-        const endItem = navItems[endIndex];
-        const containerRect = startItem.link.parentElement.getBoundingClientRect();
-        const startRect = startItem.link.getBoundingClientRect();
-        const endRect = endItem.link.getBoundingClientRect();
-        const startLeft = startRect.left - containerRect.left;
-        const startWidth = startRect.width;
-        const endLeft = endRect.left - containerRect.left;
-        const endWidth = endRect.width;
+        const startItem = cachedNavItems[startIndex];
+        const endItem = cachedNavItems[endIndex];
+        
+        const startLeft = startItem.link.offsetLeft;
+        const startWidth = startItem.link.offsetWidth;
+        const endLeft = endItem.link.offsetLeft;
+        const endWidth = endItem.link.offsetWidth;
+        
         const currentLeft = startLeft + (endLeft - startLeft) * t;
         const currentWidth = startWidth + (endWidth - startWidth) * t;
 
         indicator.style.width = `${currentWidth}px`;
         indicator.style.transform = `translateX(${currentLeft}px)`;
 
-        // Handle active class highlighting with a one-time pulse animation
-        navItems.forEach((item, index) => {
+        cachedNavItems.forEach((item, index) => {
             const isActive = (index === startIndex && t < 0.5) || (index === endIndex && t >= 0.5);
             
             if (isActive && !item.link.classList.contains('active')) {
-                // Link is becoming active: Add active state
                 item.link.classList.add('active');
-                
-                // ONLY trigger the cinematic pulse expansion if the user is NOT currently hovering.
-                // If they are hovering (like when they click), it's already expanded, so we skip the jump.
                 if (!item.link.matches(':hover')) {
                     item.link.classList.add('active-pulse');
-                    
                     item.link.addEventListener('animationend', () => {
                         item.link.classList.remove('active-pulse');
                     }, { once: true });
@@ -344,16 +358,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-
-
     // Unified scroll execution engine
     const runUnifiedScrollUpdates = () => {
         window.requestAnimationFrame(() => {
             updateSmoothIndicator();
             updateSectionParallax();
             
-            // Sync theme button rotation
-            const themeBtnLocal = document.querySelector('.theme-toggle');
+            // Sync theme button rotation using cached variable
             if (themeBtnLocal) {
                 const scrollDistance = scrollContainer.scrollTop;
                 themeBtnLocal.style.transform = `rotate(${scrollDistance * 0.15}deg)`;

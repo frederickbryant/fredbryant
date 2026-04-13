@@ -156,14 +156,13 @@ body.loading-active .navbar {
   width: 100vw;
   height: 100vh;
   z-index: 10000;
-  background-color: transparent; /* Allows high-speed background pattern to show through */
+  background-color: var(--bg-color); /* Initial solid mask */
   display: flex;
-
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  perspective: 1200px;
-  transition: opacity 0.8s ease, visibility 0.8s ease;
+  transition: opacity 1.9s ease-in-out, visibility 1.9s ease-in-out;
+  pointer-events: none; /* Let interactions pass back to the site once invisible */
 }
 
 #time-machine-loader.hidden {
@@ -913,7 +912,6 @@ h4 {
   pointer-events: none;
 }
 
-/* Clean cleanup of old entrance animations that are now obsolete */
 
 .filter-controls {
   display: flex;
@@ -1264,9 +1262,6 @@ body:not(.dark-mode) .project-card::after {
   }
 }
 
-/* Removing redundant/broken legacy project styles */
-
-/* Legacy tags removed */
 
 /* About Section */
 .about-content p {
