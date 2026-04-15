@@ -1148,7 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('mouseout', (e) => {
-        const snapEl = e.target.closest('a, button, .project-card, .scroll-btn, .nav-link, .theme-toggle, .contact-link-wrap, .close-portfolio, .close-lightbox, .timeline-bar');
+        const snapEl = e.target.closest('a, button, .scroll-btn, .nav-link, .theme-toggle, .contact-link-wrap, .close-portfolio, .close-lightbox, .timeline-bar');
         const viewEl = e.target.closest('.portfolio-item');
 
         if (snapEl) {
@@ -1187,32 +1187,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const rect = snapTarget.getBoundingClientRect();
             let padding = 12; // Standard padding for all buttons
 
-            // Specialized interaction for timeline bars to prevent the 'stuck' feeling
-            if (snapTarget.classList.contains('timeline-bar')) {
-                // No horizontal pull - let the mouse move freely along the bar's width
-                targetX = mouseX; 
-                // Only snap to the vertical center of the bar
-                targetY = rect.top + rect.height / 2;
-                padding = 8; // Tighter padding for bars
-                
+            // Magnetic pull for standard icons/buttons: move target towards the center
+            targetX = rect.left + rect.width / 2;
+            targetY = rect.top + rect.height / 2;
+
+            // Standardize snap size for fixed buttons
+            if (snapTarget.classList.contains('theme-toggle') || snapTarget.classList.contains('close-portfolio')) {
+                targetW = 50 + padding * 2;
+                targetH = 50 + padding * 2;
+            } else if (snapTarget.classList.contains('nav-link')) {
+                targetW = rect.width;
+                targetH = rect.height;
+            } else {
                 targetW = rect.width + padding * 2;
                 targetH = rect.height + padding * 2;
-            } else {
-                // Magnetic pull for standard icons/buttons: move target towards the center
-                targetX = rect.left + rect.width / 2;
-                targetY = rect.top + rect.height / 2;
-
-                // Standardize snap size for fixed buttons
-                if (snapTarget.classList.contains('theme-toggle') || snapTarget.classList.contains('close-portfolio')) {
-                    targetW = 50 + padding * 2;
-                    targetH = 50 + padding * 2;
-                } else if (snapTarget.classList.contains('nav-link')) {
-                    targetW = rect.width;
-                    targetH = rect.height;
-                } else {
-                    targetW = rect.width + padding * 2;
-                    targetH = rect.height + padding * 2;
-                }
             }
 
             // Determine border radius based on element shape, with a fallback for sharp elements

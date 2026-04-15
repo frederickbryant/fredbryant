@@ -1811,6 +1811,11 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
   .nav-logo img {
     height: 18px !important;
   }
+
+  .project-count {
+    font-size: 0.8rem !important;
+    bottom: 30px !important; /* Move it slightly lower on smaller screens */
+  }
 }
 
 /* Hide custom cursor while loading screen is active */
