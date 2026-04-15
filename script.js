@@ -72,14 +72,20 @@ document.addEventListener('DOMContentLoaded', () => {
                  if (typeof updateSmoothIndicator === 'function') updateSmoothIndicator();
                  if (typeof updateSectionParallax === 'function') updateSectionParallax();
                  
-                 const navbar = document.querySelector('.navbar');
-                 const themeToggle = document.querySelector('.theme-toggle');
-                 if (navbar) navbar.classList.add('navbar-visible');
-                 if (themeToggle) themeToggle.classList.add('toggle-visible');
+                  const navbar = document.querySelector('.navbar');
+                  const themeToggle = document.querySelector('.theme-toggle');
+                  if (navbar) navbar.classList.add('navbar-visible');
+                  if (themeToggle) themeToggle.classList.add('toggle-visible');
 
-                 // Loader is already visually transparent, just remove from DOM
-                 setTimeout(() => loader.remove(), 1500);
-             }, 800); 
+                  // Refresh layout state now that everything is visible and positioned
+                  setTimeout(() => {
+                      cacheLayoutState();
+                      runUnifiedScrollUpdates();
+                  }, 500);
+
+                  // Loader is already visually transparent, just remove from DOM
+                  setTimeout(() => loader.remove(), 1500);
+              }, 800); 
         }, 1500); 
 
 
@@ -337,8 +343,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentLeft = startLeft + (endLeft - startLeft) * t;
         const currentWidth = startWidth + (endWidth - startWidth) * t;
 
-        indicator.style.width = `${currentWidth}px`;
-        indicator.style.transform = `translateX(${currentLeft}px)`;
+        // Use precise pixel values for the indicator to avoid sub-pixel misalignment on small screens
+        indicator.style.width = `${currentWidth.toFixed(2)}px`;
+        indicator.style.transform = `translateX(${currentLeft.toFixed(2)}px)`;
 
         cachedNavItems.forEach((item, index) => {
             const isActive = (index === startIndex && t < 0.5) || (index === endIndex && t >= 0.5);

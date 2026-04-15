@@ -491,6 +491,11 @@ body.dark-mode .cursor-circle.snapped {
   padding: 2rem;
 }
 
+.projects.section {
+  height: auto;
+  flex-direction: column;
+}
+
 .section.hero {
   flex-direction: column;
   justify-content: center;
