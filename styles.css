@@ -1813,8 +1813,21 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
   }
 
   .project-count {
-    font-size: 0.8rem !important;
-    bottom: 30px !important; /* Move it slightly lower on smaller screens */
+    bottom: 8vh !important; /* Scaled viewport positioning for mobile */
+  }
+
+  .project-count .count-numbers {
+    font-size: 1rem !important; /* Smaller numbers for mobile */
+    letter-spacing: 0.1em !important;
+  }
+
+  .project-count .project-timeline {
+    gap: 8px !important; /* Tighter gap for small screens */
+  }
+
+  .project-count .timeline-bar {
+    height: 8px !important; /* Slimmer bars */
+    width: 20px !important;
   }
 }
 
