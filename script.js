@@ -345,15 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (isActive && !item.link.classList.contains('active')) {
                 item.link.classList.add('active');
-                if (!item.link.matches(':hover')) {
-                    item.link.classList.add('active-pulse');
-                    item.link.addEventListener('animationend', () => {
-                        item.link.classList.remove('active-pulse');
-                    }, { once: true });
-                }
             } else if (!isActive) {
                 item.link.classList.remove('active');
-                item.link.classList.remove('active-pulse');
             }
         });
     };
