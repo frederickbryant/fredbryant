@@ -1012,7 +1012,7 @@ body.dark-mode .project-count {
 
 .count-numbers {
   font-family: var(--font-mono);
-  font-size: 1.5rem; /* Larger numbers per user request */
+  font-size: 1.2rem; /* Adjusted per user request */
   letter-spacing: 0.15em;
   color: var(--text-muted);
 }
@@ -1123,7 +1123,7 @@ body.is-projects-active .project-count {
   padding: 0.8rem 2.5rem;
   border-radius: 100px;
   font-family: var(--font-mono);
-  font-size: 1.1rem;
+  font-size: 1.25rem; /* Slightly larger button text per user request */
   text-transform: uppercase;
   letter-spacing: 0.1em;
   transition: var(--transition);
@@ -1813,7 +1813,6 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
 
   .project-count .timeline-bar {
     height: 8px !important; /* Slimmer bars */
-    width: 20px !important;
   }
 }
 
