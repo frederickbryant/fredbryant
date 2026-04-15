@@ -1801,7 +1801,14 @@ body.dark-mode .contact-link-wrap:hover .round-btn svg {
   }
 
   .nav-link::after {
-    display: none !important; /* Prevent hidden text from affecting width */
+    /* Keep width constant based on expanded state even on mobile */
+    letter-spacing: 0.35em !important;
+    display: block !important;
+  }
+
+  .navbar {
+    min-width: 280px !important;
+    justify-content: center !important;
   }
 
   .nav-logo {
