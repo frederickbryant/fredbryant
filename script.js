@@ -1152,14 +1152,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const viewEl = e.target.closest('.portfolio-item');
 
         if (snapEl) {
-            // Reset content translation
-            Array.from(snapEl.children).forEach(child => {
-                if (!child.classList.contains('card-glass')) {
-                    child.style.transform = '';
-                    child.style.transition = 'transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)';
-                }
-            });
-
             snapTarget = null;
             cursorCircle.classList.remove('snapped');
 
