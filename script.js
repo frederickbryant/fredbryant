@@ -1257,5 +1257,131 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Background effect handled in CSS via custom properties ---
 
+    // --- Collating ASCII Background Port ---
+    function initCollatingASCII() {
+        const canvas = document.getElementById('collating-ascii-canvas');
+        if (!canvas) return;
+
+        const parent = canvas.parentElement;
+        const sourceCanvas = document.createElement('canvas');
+        const gl = sourceCanvas.getContext('webgl', { preserveDrawingBuffer: true });
+        const ctx = canvas.getContext('2d', { alpha: false });
+
+        if (!gl) return;
+
+        const vsSource = `attribute vec2 position; void main() { gl_Position = vec4(position, 0.0, 1.0); }`;
+        const fsSource = `
+            precision highp float;
+            uniform vec2 u_resolution;
+            uniform vec2 u_mouse;
+            uniform float u_time;
+
+            vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+            float snoise(vec2 v){
+              const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+              vec2 i  = floor(v + dot(v, C.yy) );
+              vec2 x0 = v - i + dot(i, C.xx);
+              vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+              vec4 x12 = x0.xyxy + C.xxzz; x12.xy -= i1; i = mod(i, 289.0);
+              vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+              vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+              m = m*m ; m = m*m ;
+              vec3 x = 2.0 * fract(p * C.www) - 1.0; vec3 h = abs(x) - 0.5; vec3 ox = floor(x + 0.5); vec3 a0 = x - ox;
+              m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+              vec3 g; g.x = a0.x * x0.x + h.x * x0.y; g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+              return 130.0 * dot(m, g);
+            }
+
+            void main() {
+                vec2 st = gl_FragCoord.xy / u_resolution.xy;
+                float ratio = u_resolution.x / u_resolution.y;
+                vec2 adjustedSt = st * vec2(ratio, 1.0);
+                float slowTime = u_time * 0.4;
+                vec2 flowA = adjustedSt * 0.6 + vec2(slowTime * 0.1, slowTime * 0.05);
+                float n1 = snoise(flowA) * 0.5 + 0.5;
+                vec2 flowB = adjustedSt * 0.8 - vec2(slowTime * 0.05, slowTime * 0.08) + n1 * 0.2;
+                float n2 = snoise(flowB) * 0.5 + 0.5;
+                float finalMask = mix(n1, n2, 0.5);
+                finalMask = clamp((finalMask - 0.15) / 0.7, 0.0, 1.0);
+                gl_FragColor = vec4(vec3(finalMask), 1.0);
+            }
+        `;
+
+        const program = gl.createProgram();
+        const vs = gl.createShader(gl.VERTEX_SHADER); gl.shaderSource(vs, vsSource); gl.compileShader(vs);
+        const fs = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(fs, fsSource); gl.compileShader(fs);
+        gl.attachShader(program, vs); gl.attachShader(program, fs); gl.linkProgram(program); gl.useProgram(program);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+        const posLoc = gl.getAttribLocation(program, "position");
+        gl.enableVertexAttribArray(posLoc); gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+        const locations = {
+            resolution: gl.getUniformLocation(program, "u_resolution"),
+            mouse: gl.getUniformLocation(program, "u_mouse"),
+            time: gl.getUniformLocation(program, "u_time"),
+        };
+
+        const charArray = ".,:;|{#&@".split('');
+        const charCount = charArray.length;
+        const charSize = 9; 
+        
+        let cols, rows, width, height;
+        function resize() {
+            width = parent.offsetWidth; height = parent.offsetHeight;
+            canvas.width = width; canvas.height = height;
+            cols = Math.ceil(width / charSize); rows = Math.ceil(height / charSize);
+            sourceCanvas.width = cols; sourceCanvas.height = rows;
+            gl.viewport(0, 0, cols, rows);
+            gl.uniform2f(locations.resolution, cols, rows);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        let mouseX = cols / 2, mouseY = rows / 2;
+        window.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = ((e.clientX - rect.left) / width) * cols;
+            mouseY = rows - ((e.clientY - rect.top) / height) * rows;
+        });
+
+        const pixels = new Uint8Array(cols * rows * 4);
+        function render(now) {
+            if (!document.body.contains(canvas)) return;
+            
+            const isDark = document.body.classList.contains('dark-mode');
+            const bgColor = isDark ? "#0a0a0b" : "#f5f5f7";
+            const textColor = "#906ce5";
+
+            gl.uniform1f(locations.time, now * 0.001);
+            gl.uniform2f(locations.mouse, mouseX, mouseY);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            gl.readPixels(0, 0, cols, rows, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, width, height);
+            ctx.font = `${charSize}px monospace`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let y = 0; y < rows; y++) {
+                const screenY = (rows - y) * charSize - charSize / 2;
+                for (let x = 0; x < cols; x++) {
+                    const i = (y * cols + x) * 4;
+                    const brightness = pixels[i] / 255;
+                    if (brightness > 0.01) {  
+                        const charIdx = Math.floor(brightness * (charCount - 1));
+                        ctx.fillStyle = textColor;
+                        ctx.fillText(charArray[charIdx], x * charSize + charSize / 2, screenY);
+                    }
+                }
+            }
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+    }
+    initCollatingASCII();
 
 });
