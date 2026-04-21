@@ -1073,9 +1073,6 @@ body.is-projects-active .project-count {
   pointer-events: none;
 }
 
-.project-card:hover .card-image-placeholder {
-  transform: scale(1.05);
-}
 
 /* Card Content Layer */
 .card-content {
